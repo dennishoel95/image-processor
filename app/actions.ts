@@ -1,0 +1,85 @@
+"use server";
+
+import path from "path";
+import {
+  validateDirectory,
+  scanForImages,
+  readImageAsBase64,
+  getImageMediaType,
+  copyFileWithNewName,
+  writeMetadataFile,
+  getUniqueFileName,
+} from "@/lib/filesystem";
+import { analyzeImage, type ImageAnalysis } from "@/lib/claude";
+import { buildFileName } from "@/lib/naming";
+
+export async function scanSourceFolder(
+  sourcePath: string
+): Promise<{ success: boolean; files?: string[]; error?: string }> {
+  const valid = await validateDirectory(sourcePath);
+  if (!valid) {
+    return { success: false, error: `Invalid directory: ${sourcePath}` };
+  }
+
+  const files = await scanForImages(sourcePath);
+  return { success: true, files };
+}
+
+export async function processImage(
+  apiKey: string,
+  sourcePath: string,
+  fileName: string
+): Promise<{ success: boolean; analysis?: ImageAnalysis; error?: string }> {
+  try {
+    const filePath = path.join(sourcePath, fileName);
+    const base64 = await readImageAsBase64(filePath);
+    const mediaType = await getImageMediaType(filePath);
+    const analysis = await analyzeImage(apiKey, base64, mediaType);
+    return { success: true, analysis };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { success: false, error: message };
+  }
+}
+
+export async function exportImage(params: {
+  sourcePath: string;
+  destPath: string;
+  originalFileName: string;
+  descriptiveName: string;
+  prefix: string;
+  suffix: string;
+  separator: string;
+  altText: string;
+  metaDescription: string;
+  keywords: string[];
+}): Promise<{ success: boolean; finalFileName?: string; error?: string }> {
+  try {
+    const ext = path.extname(params.originalFileName);
+    const fileName = buildFileName({
+      prefix: params.prefix,
+      aiName: params.descriptiveName,
+      suffix: params.suffix,
+      separator: params.separator,
+      originalExtension: ext,
+    });
+
+    const uniqueFileName = await getUniqueFileName(params.destPath, fileName);
+    const baseName = path.basename(uniqueFileName, path.extname(uniqueFileName));
+
+    const sourceFilePath = path.join(params.sourcePath, params.originalFileName);
+
+    await copyFileWithNewName(sourceFilePath, params.destPath, uniqueFileName);
+    await writeMetadataFile(params.destPath, baseName, {
+      fileName: uniqueFileName,
+      altText: params.altText,
+      metaDescription: params.metaDescription,
+      keywords: params.keywords,
+    });
+
+    return { success: true, finalFileName: uniqueFileName };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { success: false, error: message };
+  }
+}

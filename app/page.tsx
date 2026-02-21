@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
@@ -36,6 +36,13 @@ export default function Home() {
   const [isScanning, setIsScanning] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Use ref so callbacks always see current images without stale closures
+  const imagesRef = useRef(images);
+  imagesRef.current = images;
+
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   // Load settings from localStorage on mount
   useEffect(() => {
     setSettings(loadSettings());
@@ -49,9 +56,10 @@ export default function Home() {
   }, [settings]);
 
   const handleScan = useCallback(async () => {
-    if (!settings.sourcePath) return;
+    const s = settingsRef.current;
+    if (!s.sourcePath) return;
     setIsScanning(true);
-    const result = await scanSourceFolder(settings.sourcePath);
+    const result = await scanSourceFolder(s.sourcePath);
     setIsScanning(false);
 
     if (result.success && result.files) {
@@ -59,7 +67,7 @@ export default function Home() {
         result.files.map((fileName) => ({
           id: crypto.randomUUID(),
           originalFileName: fileName,
-          sourcePath: `${settings.sourcePath}/${fileName}`,
+          sourcePath: `${s.sourcePath}/${fileName}`,
           status: "pending" as const,
           exported: false,
         }))
@@ -68,27 +76,33 @@ export default function Home() {
     } else {
       alert(result.error || "Failed to scan folder");
     }
-  }, [settings.sourcePath]);
+  }, []);
 
   const handleProcessSingle = useCallback(
     async (imageId: string) => {
-      if (!settings.apiKey) {
+      const s = settingsRef.current;
+      if (!s.apiKey) {
         alert("Please enter your Claude API key");
         return;
       }
 
+      // Find image from ref to avoid stale closure
+      const image = imagesRef.current.find((img) => img.id === imageId);
+      if (!image) {
+        console.error(`Image not found: ${imageId}`);
+        return;
+      }
+
+      // Set to processing
       setImages((prev) =>
         prev.map((img) =>
-          img.id === imageId ? { ...img, status: "processing" as const } : img
+          img.id === imageId ? { ...img, status: "processing" as const, error: undefined } : img
         )
       );
 
-      const image = images.find((img) => img.id === imageId);
-      if (!image) return;
-
       const result = await processImage(
-        settings.apiKey,
-        settings.sourcePath,
+        s.apiKey,
+        s.sourcePath,
         image.originalFileName
       );
 
@@ -97,48 +111,52 @@ export default function Home() {
           img.id === imageId
             ? result.success
               ? { ...img, status: "done" as const, analysis: result.analysis }
-              : { ...img, status: "error" as const, error: result.error }
+              : { ...img, status: "error" as const, error: result.error || "Unknown error" }
             : img
         )
       );
     },
-    [settings.apiKey, settings.sourcePath, images]
+    []
   );
 
   const handleProcessAll = useCallback(async () => {
-    if (!settings.apiKey) {
+    const s = settingsRef.current;
+    if (!s.apiKey) {
       alert("Please enter your Claude API key");
       return;
     }
 
     setIsProcessing(true);
-    const pending = images.filter((img) => img.status === "pending");
+
+    // Get pending images from ref for fresh state
+    const pending = imagesRef.current.filter((img) => img.status === "pending");
 
     for (const image of pending) {
       await handleProcessSingle(image.id);
     }
 
     setIsProcessing(false);
-  }, [settings.apiKey, images, handleProcessSingle]);
+  }, [handleProcessSingle]);
 
   const handleExportSingle = useCallback(
     async (imageId: string) => {
-      if (!settings.destPath) {
+      const s = settingsRef.current;
+      if (!s.destPath) {
         alert("Please enter a destination folder");
         return;
       }
 
-      const image = images.find((img) => img.id === imageId);
+      const image = imagesRef.current.find((img) => img.id === imageId);
       if (!image || !image.analysis) return;
 
       const result = await exportImage({
-        sourcePath: settings.sourcePath,
-        destPath: settings.destPath,
+        sourcePath: s.sourcePath,
+        destPath: s.destPath,
         originalFileName: image.originalFileName,
         descriptiveName: image.analysis.descriptiveName,
-        prefix: settings.prefix,
-        suffix: settings.suffix,
-        separator: settings.separator,
+        prefix: s.prefix,
+        suffix: s.suffix,
+        separator: s.separator,
         altText: image.analysis.altText,
         metaDescription: image.analysis.metaDescription,
         keywords: image.analysis.keywords,
@@ -156,17 +174,17 @@ export default function Home() {
         alert(result.error || "Export failed");
       }
     },
-    [settings, images]
+    []
   );
 
   const handleExportAll = useCallback(async () => {
-    const processed = images.filter(
+    const processed = imagesRef.current.filter(
       (img) => img.status === "done" && !img.exported
     );
     for (const image of processed) {
       await handleExportSingle(image.id);
     }
-  }, [images, handleExportSingle]);
+  }, [handleExportSingle]);
 
   const handleUpdateAnalysis = useCallback(
     (

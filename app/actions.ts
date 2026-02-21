@@ -31,13 +31,21 @@ export async function processImage(
   fileName: string
 ): Promise<{ success: boolean; analysis?: ImageAnalysis; error?: string }> {
   try {
+    if (!apiKey || apiKey.trim().length === 0) {
+      return { success: false, error: "API key is empty" };
+    }
     const filePath = path.join(sourcePath, fileName);
+    console.log(`[processImage] Processing: ${fileName}`);
     const base64 = await readImageAsBase64(filePath);
+    console.log(`[processImage] Read ${fileName} as base64 (${Math.round(base64.length / 1024)}KB)`);
     const mediaType = await getImageMediaType(filePath);
+    console.log(`[processImage] Media type: ${mediaType}, calling Claude API...`);
     const analysis = await analyzeImage(apiKey, base64, mediaType);
+    console.log(`[processImage] Success: ${fileName} -> ${analysis.descriptiveName}`);
     return { success: true, analysis };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[processImage] Error processing ${fileName}:`, message);
     return { success: false, error: message };
   }
 }

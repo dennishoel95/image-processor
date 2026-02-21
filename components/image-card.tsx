@@ -54,6 +54,11 @@ export function ImageCard({
             {image.analysis.descriptiveName}
           </p>
         )}
+        {image.status === "error" && image.error && (
+          <p className="text-xs text-red-600 mt-0.5 line-clamp-2">
+            {image.error}
+          </p>
+        )}
       </div>
     </div>
   );

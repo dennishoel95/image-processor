@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AppSettings } from "@/lib/types";
+import { FolderBrowser } from "./folder-browser";
 
 interface SettingsPanelProps {
   settings: AppSettings;
@@ -23,6 +25,8 @@ export function SettingsPanel({
   isProcessing,
   imageCount,
 }: SettingsPanelProps) {
+  const [browseTarget, setBrowseTarget] = useState<"source" | "dest" | null>(null);
+
   const update = (field: keyof AppSettings, value: string) => {
     onSettingsChange({ ...settings, [field]: value });
   };
@@ -40,7 +44,7 @@ export function SettingsPanel({
           value={settings.apiKey}
           onChange={(e) => update("apiKey", e.target.value)}
           placeholder="sk-ant-..."
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
@@ -50,26 +54,42 @@ export function SettingsPanel({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Source Folder
         </label>
-        <input
-          type="text"
-          value={settings.sourcePath}
-          onChange={(e) => update("sourcePath", e.target.value)}
-          placeholder="/path/to/source/images"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={settings.sourcePath}
+            onChange={(e) => update("sourcePath", e.target.value)}
+            placeholder="/path/to/source/images"
+            className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <button
+            onClick={() => setBrowseTarget("source")}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100"
+          >
+            Browse
+          </button>
+        </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Destination Folder
         </label>
-        <input
-          type="text"
-          value={settings.destPath}
-          onChange={(e) => update("destPath", e.target.value)}
-          placeholder="/path/to/destination"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={settings.destPath}
+            onChange={(e) => update("destPath", e.target.value)}
+            placeholder="/path/to/destination"
+            className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <button
+            onClick={() => setBrowseTarget("dest")}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100"
+          >
+            Browse
+          </button>
+        </div>
       </div>
 
       <hr className="border-gray-200" />
@@ -84,7 +104,7 @@ export function SettingsPanel({
             value={settings.prefix}
             onChange={(e) => update("prefix", e.target.value)}
             placeholder="e.g. blog"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
         <div>
@@ -96,7 +116,7 @@ export function SettingsPanel({
             value={settings.suffix}
             onChange={(e) => update("suffix", e.target.value)}
             placeholder="e.g. hero"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -110,7 +130,7 @@ export function SettingsPanel({
           value={settings.separator}
           onChange={(e) => update("separator", e.target.value)}
           maxLength={3}
-          className="w-20 rounded-md border border-gray-300 px-3 py-2 text-sm text-center focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-20 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 text-center focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
@@ -143,6 +163,20 @@ export function SettingsPanel({
           </button>
         </>
       )}
+
+      {/* Folder Browser Modal */}
+      <FolderBrowser
+        isOpen={browseTarget !== null}
+        onClose={() => setBrowseTarget(null)}
+        onSelect={(selectedPath) => {
+          if (browseTarget === "source") {
+            update("sourcePath", selectedPath);
+          } else if (browseTarget === "dest") {
+            update("destPath", selectedPath);
+          }
+        }}
+        title={browseTarget === "source" ? "Select Source Folder" : "Select Destination Folder"}
+      />
     </div>
   );
 }

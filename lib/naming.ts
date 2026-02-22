@@ -1,5 +1,3 @@
-import path from "path";
-
 export function buildFileName(params: {
   prefix: string;
   aiName: string;
@@ -29,8 +27,4 @@ export function sanitizeForFilename(text: string): string {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-}
-
-export function getExtension(fileName: string): string {
-  return path.extname(fileName).toLowerCase();
 }

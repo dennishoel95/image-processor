@@ -76,11 +76,11 @@ export default function Home() {
   // Clean up blob URLs when component unmounts
   useEffect(() => {
     return () => {
-      images.forEach((img) => {
+      imagesRef.current.forEach((img) => {
         if (img.thumbnailUrl) URL.revokeObjectURL(img.thumbnailUrl);
       });
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFilesSelected = useCallback((files: File[]) => {
     const promises = files.map(
@@ -212,12 +212,12 @@ export default function Home() {
   }, []);
 
   const handleReset = useCallback(() => {
-    images.forEach((img) => {
+    imagesRef.current.forEach((img) => {
       if (img.thumbnailUrl) URL.revokeObjectURL(img.thumbnailUrl);
     });
     setImages([]);
     setSelectedId(null);
-  }, [images]);
+  }, []);
 
   const selectedImage = images.find((img) => img.id === selectedId) || null;
   const processedCount = images.filter(

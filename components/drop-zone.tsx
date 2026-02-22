@@ -5,7 +5,7 @@ import { t, type Language } from "@/lib/i18n";
 
 const MAX_FILES = 10;
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 interface DropZoneProps {
   onFilesSelected: (files: File[]) => void;
@@ -86,7 +86,7 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
         ref={fileInputRef}
         type="file"
         multiple
-        accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
+        accept="image/jpeg,image/png,image/gif,image/webp"
         onChange={handleFileChange}
         className="hidden"
       />

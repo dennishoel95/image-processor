@@ -3,7 +3,9 @@ export type ImageStatus = "pending" | "processing" | "done" | "error";
 export interface ImageItem {
   id: string;
   originalFileName: string;
-  sourcePath: string;
+  fileData: string; // base64 data URL from FileReader
+  thumbnailUrl: string; // blob URL from URL.createObjectURL
+  mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
   status: ImageStatus;
   error?: string;
   analysis?: {
@@ -25,8 +27,6 @@ import type { Language } from "./i18n";
 
 export interface AppSettings {
   language: Language;
-  sourcePath: string;
-  destPath: string;
   prefix: string;
   suffix: string;
   separator: string;

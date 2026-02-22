@@ -1,15 +1,40 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { t, type Language } from "@/lib/i18n";
 
+const MAX_FILES = 10;
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+
 interface DropZoneProps {
-  onFilesDropped: (files: File[]) => void;
+  onFilesSelected: (files: File[]) => void;
+  currentCount: number;
   language: Language;
 }
 
-export function DropZone({ onFilesDropped, language }: DropZoneProps) {
+export function DropZone({ onFilesSelected, currentCount, language }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const validateAndEmit = useCallback(
+    (files: File[]) => {
+      const remaining = MAX_FILES - currentCount;
+      if (remaining <= 0) {
+        alert(t("maxFilesReached", language));
+        return;
+      }
+
+      const valid = files
+        .filter((f) => ACCEPTED_TYPES.includes(f.type))
+        .filter((f) => f.size <= MAX_FILE_SIZE)
+        .slice(0, remaining);
+
+      if (valid.length === 0) return;
+      onFilesSelected(valid);
+    },
+    [onFilesSelected, currentCount, language]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -25,16 +50,24 @@ export function DropZone({ onFilesDropped, language }: DropZoneProps) {
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragOver(false);
-
-      const files = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith("image/")
-      );
-
-      if (files.length > 0) {
-        onFilesDropped(files);
-      }
+      const files = Array.from(e.dataTransfer.files);
+      validateAndEmit(files);
     },
-    [onFilesDropped]
+    [validateAndEmit]
+  );
+
+  const handleClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      validateAndEmit(files);
+      // Reset input so same files can be re-selected
+      e.target.value = "";
+    },
+    [validateAndEmit]
   );
 
   return (
@@ -42,12 +75,21 @@ export function DropZone({ onFilesDropped, language }: DropZoneProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+      onClick={handleClick}
+      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
         isDragOver
           ? "border-slate bg-platinum"
           : "border-pale bg-snow hover:border-muted"
       }`}
     >
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/gif,image/webp,image/avif"
+        onChange={handleFileChange}
+        className="hidden"
+      />
       <div className="text-slate">
         <svg
           className="mx-auto h-12 w-12 text-muted"
@@ -66,7 +108,10 @@ export function DropZone({ onFilesDropped, language }: DropZoneProps) {
           {t("dropImages", language)}
         </p>
         <p className="mt-1 text-xs text-muted">
-          {t("dropSub", language)}
+          {t("dropSubBrowser", language)}
+        </p>
+        <p className="mt-1 text-xs text-muted">
+          {currentCount}/{MAX_FILES} {t("imagesLoaded", language)}
         </p>
       </div>
     </div>

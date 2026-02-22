@@ -1,36 +1,31 @@
 "use client";
 
-import { useState } from "react";
 import { AppSettings } from "@/lib/types";
 import { LANGUAGES, t, type Language } from "@/lib/i18n";
-import { FolderBrowser } from "./folder-browser";
 
 interface SettingsPanelProps {
   settings: AppSettings;
   onSettingsChange: (settings: AppSettings) => void;
-  onScan: () => void;
   onProcessAll: () => void;
   onExportAll: () => void;
   onReset: () => void;
-  isScanning: boolean;
   isProcessing: boolean;
   imageCount: number;
+  processedCount: number;
   apiKeyConfigured: boolean;
 }
 
 export function SettingsPanel({
   settings,
   onSettingsChange,
-  onScan,
   onProcessAll,
   onExportAll,
   onReset,
-  isScanning,
   isProcessing,
   imageCount,
+  processedCount,
   apiKeyConfigured,
 }: SettingsPanelProps) {
-  const [browseTarget, setBrowseTarget] = useState<"source" | "dest" | null>(null);
   const lang = settings.language;
 
   const update = (field: keyof AppSettings, value: string) => {
@@ -72,50 +67,6 @@ export function SettingsPanel({
           </div>
         </>
       )}
-
-      <hr className="border-alabaster" />
-
-      <div>
-        <label className="block text-sm font-medium text-iron mb-1">
-          {t("sourceFolder", lang)}
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={settings.sourcePath}
-            onChange={(e) => update("sourcePath", e.target.value)}
-            placeholder="/path/to/source/images"
-            className="flex-1 rounded-md border border-pale bg-snow px-3 py-2 text-sm text-carbon focus:border-slate focus:outline-none focus:ring-1 focus:ring-slate"
-          />
-          <button
-            onClick={() => setBrowseTarget("source")}
-            className="px-3 py-2 text-sm font-medium text-iron bg-snow border border-pale rounded-md hover:bg-alabaster hover:shadow-md transition-all"
-          >
-            {t("browse", lang)}
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-iron mb-1">
-          {t("destFolder", lang)}
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={settings.destPath}
-            onChange={(e) => update("destPath", e.target.value)}
-            placeholder="/path/to/destination"
-            className="flex-1 rounded-md border border-pale bg-snow px-3 py-2 text-sm text-carbon focus:border-slate focus:outline-none focus:ring-1 focus:ring-slate"
-          />
-          <button
-            onClick={() => setBrowseTarget("dest")}
-            className="px-3 py-2 text-sm font-medium text-iron bg-snow border border-pale rounded-md hover:bg-alabaster hover:shadow-md transition-all"
-          >
-            {t("browse", lang)}
-          </button>
-        </div>
-      </div>
 
       <hr className="border-alabaster" />
 
@@ -163,31 +114,14 @@ export function SettingsPanel({
 
       {/* Action steps */}
       <div className="rounded-lg border border-pale overflow-hidden">
-        {/* Step 1: Scan */}
-        <button
-          onClick={onScan}
-          disabled={isScanning || !settings.sourcePath}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-snow text-left hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:hover:bg-snow disabled:hover:shadow-none disabled:cursor-not-allowed transition-all"
-        >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-iron text-snow text-xs font-semibold flex items-center justify-center">
-            1
-          </span>
-          <span className="text-sm font-medium text-carbon">
-            {isScanning ? t("scanning", lang) : t("scanSource", lang)}
-          </span>
-        </button>
-
-        {/* Divider */}
-        <div className="border-t border-pale" />
-
-        {/* Step 2: Process */}
+        {/* Step 1: Process */}
         <button
           onClick={onProcessAll}
           disabled={isProcessing || !apiKeyConfigured || imageCount === 0}
           className="w-full flex items-center gap-3 px-3 py-2.5 bg-snow text-left hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:hover:bg-snow disabled:hover:shadow-none disabled:cursor-not-allowed transition-all"
         >
           <span className="flex-shrink-0 w-6 h-6 rounded-full bg-iron text-snow text-xs font-semibold flex items-center justify-center">
-            2
+            1
           </span>
           <span className="text-sm font-medium text-carbon">
             {isProcessing ? t("processing", lang) : imageCount > 0 ? `${t("processAll", lang)} (${imageCount})` : t("processAll", lang)}
@@ -197,17 +131,17 @@ export function SettingsPanel({
         {/* Divider */}
         <div className="border-t border-pale" />
 
-        {/* Step 3: Export */}
+        {/* Step 2: Export */}
         <button
           onClick={onExportAll}
-          disabled={isProcessing || !settings.destPath || imageCount === 0}
+          disabled={isProcessing || processedCount === 0}
           className="w-full flex items-center gap-3 px-3 py-2.5 bg-snow text-left hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:hover:bg-snow disabled:hover:shadow-none disabled:cursor-not-allowed transition-all"
         >
           <span className="flex-shrink-0 w-6 h-6 rounded-full bg-iron text-snow text-xs font-semibold flex items-center justify-center">
-            3
+            2
           </span>
           <span className="text-sm font-medium text-carbon">
-            {t("exportAllProcessed", lang)}
+            {processedCount > 0 ? `${t("exportAllProcessed", lang)} (${processedCount})` : t("exportAllProcessed", lang)}
           </span>
         </button>
       </div>
@@ -221,21 +155,6 @@ export function SettingsPanel({
           {t("reset", lang)}
         </button>
       )}
-
-      {/* Folder Browser Modal */}
-      <FolderBrowser
-        isOpen={browseTarget !== null}
-        onClose={() => setBrowseTarget(null)}
-        onSelect={(selectedPath) => {
-          if (browseTarget === "source") {
-            update("sourcePath", selectedPath);
-          } else if (browseTarget === "dest") {
-            update("destPath", selectedPath);
-          }
-        }}
-        title={browseTarget === "source" ? t("selectSource", lang) : t("selectDest", lang)}
-        language={lang}
-      />
     </div>
   );
 }

@@ -1,61 +1,70 @@
 "use client";
 
 import { ImageItem } from "@/lib/types";
+import { t, type Language } from "@/lib/i18n";
 
 interface ImageCardProps {
   image: ImageItem;
   isSelected: boolean;
   onClick: () => void;
+  onRemove: (id: string) => void;
   thumbnailUrl: string;
+  language: Language;
 }
-
-const statusColors: Record<string, string> = {
-  pending: "bg-gray-200 text-gray-700",
-  processing: "bg-yellow-200 text-yellow-800",
-  done: "bg-green-200 text-green-800",
-  error: "bg-red-200 text-red-800",
-};
 
 export function ImageCard({
   image,
   isSelected,
   onClick,
+  onRemove,
   thumbnailUrl,
+  language,
 }: ImageCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`rounded-lg border-2 overflow-hidden cursor-pointer transition-all hover:shadow-md ${
-        isSelected ? "border-blue-500 shadow-md" : "border-gray-200"
+      className={`rounded-lg border overflow-hidden cursor-pointer transition-all hover:shadow-md ${
+        isSelected ? "border-iron shadow-md" : "border-pale"
       }`}
     >
-      <div className="aspect-square bg-gray-100 relative">
+      <div className="aspect-square bg-platinum relative group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={thumbnailUrl}
           alt={image.analysis?.altText || image.originalFileName}
           className="w-full h-full object-cover"
         />
+        {/* Status — left-aligned */}
         <span
-          className={`absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[image.status]}`}
+          className="absolute top-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-white text-carbon border border-carbon/20"
         >
-          {image.status}
+          {t(image.status, language)}
         </span>
         {image.exported && (
-          <span className="absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-medium bg-purple-200 text-purple-800">
-            exported
+          <span className="absolute bottom-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-white text-carbon border border-carbon/20">
+            {t("exported", language)}
           </span>
         )}
+        {/* Remove button — top-right, visible on hover */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(image.id);
+          }}
+          className="absolute top-2 right-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-carbon text-white border border-white opacity-0 group-hover:opacity-100 hover:bg-black transition-all"
+        >
+          {t("remove", language)}
+        </button>
       </div>
-      <div className="p-2">
-        <p className="text-xs text-gray-500 truncate">{image.originalFileName}</p>
+      <div className="p-2 bg-snow">
+        <p className="text-xs text-slate truncate">{image.originalFileName}</p>
         {image.analysis && (
-          <p className="text-sm font-medium text-gray-900 truncate mt-0.5">
+          <p className="text-sm font-medium text-carbon truncate mt-0.5">
             {image.analysis.descriptiveName}
           </p>
         )}
         {image.status === "error" && image.error && (
-          <p className="text-xs text-red-600 mt-0.5 line-clamp-2">
+          <p className="text-xs text-iron mt-0.5 line-clamp-2">
             {image.error}
           </p>
         )}

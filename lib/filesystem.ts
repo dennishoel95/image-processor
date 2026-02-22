@@ -65,24 +65,63 @@ export async function writeMetadataFile(
   baseFileName: string,
   metadata: {
     fileName: string;
+    title: string;
     altText: string;
     metaDescription: string;
     keywords: string[];
+    locationName: string;
+    city: string;
+    stateProvince: string;
+    country: string;
   }
 ): Promise<string> {
   const mdFileName = baseFileName + ".md";
   const mdPath = path.join(destDir, mdFileName);
+  const dateCreated = new Date().toISOString().split("T")[0];
+
+  // Build location string from available fields
+  const locationParts = [
+    metadata.locationName,
+    metadata.city,
+    metadata.stateProvince,
+    metadata.country,
+  ].filter(Boolean);
+  const locationString = locationParts.join(", ") || "—";
 
   const content = `# ${metadata.fileName}
 
-## Alt Text
-${metadata.altText}
+## Title
+${metadata.title || "—"}
 
-## Meta Description
-${metadata.metaDescription}
+## Alt Text
+${metadata.altText || "—"}
+
+## Description
+${metadata.metaDescription || "—"}
 
 ## Keywords
-${metadata.keywords.join(", ")}
+${metadata.keywords.length > 0 ? metadata.keywords.join(", ") : "—"}
+
+## Copyright
+<!-- Fill in: e.g. © ${new Date().getFullYear()} Your Company. All rights reserved. -->
+
+## Creator
+<!-- Fill in: e.g. Photography: Name | Edit: Design Team -->
+
+## Date Created
+${dateCreated}
+
+## Web Statement of Rights
+<!-- Fill in: e.g. https://example.com/image-licensing-terms -->
+
+## Location
+${locationString}
+
+### Location Details
+- **Location Name:** ${metadata.locationName || "—"}
+- **City:** ${metadata.city || "—"}
+- **State/Province:** ${metadata.stateProvince || "—"}
+- **Country:** ${metadata.country || "—"}
 `;
 
   await fs.writeFile(mdPath, content, "utf-8");

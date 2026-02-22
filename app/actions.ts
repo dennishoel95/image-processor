@@ -12,6 +12,7 @@ import {
 } from "@/lib/filesystem";
 import { analyzeImage, type ImageAnalysis } from "@/lib/claude";
 import { buildFileName } from "@/lib/naming";
+import type { Language } from "@/lib/i18n";
 
 export async function scanSourceFolder(
   sourcePath: string
@@ -25,22 +26,23 @@ export async function scanSourceFolder(
   return { success: true, files };
 }
 
+export async function checkApiKey(): Promise<{ configured: boolean }> {
+  return { configured: !!process.env.ANTHROPIC_API_KEY };
+}
+
 export async function processImage(
-  apiKey: string,
   sourcePath: string,
-  fileName: string
+  fileName: string,
+  language: Language
 ): Promise<{ success: boolean; analysis?: ImageAnalysis; error?: string }> {
   try {
-    if (!apiKey || apiKey.trim().length === 0) {
-      return { success: false, error: "API key is empty" };
-    }
     const filePath = path.join(sourcePath, fileName);
-    console.log(`[processImage] Processing: ${fileName}`);
+    console.log(`[processImage] Processing: ${fileName} (lang: ${language})`);
     const base64 = await readImageAsBase64(filePath);
     console.log(`[processImage] Read ${fileName} as base64 (${Math.round(base64.length / 1024)}KB)`);
     const mediaType = await getImageMediaType(filePath);
     console.log(`[processImage] Media type: ${mediaType}, calling Claude API...`);
-    const analysis = await analyzeImage(apiKey, base64, mediaType);
+    const analysis = await analyzeImage(base64, mediaType, language);
     console.log(`[processImage] Success: ${fileName} -> ${analysis.descriptiveName}`);
     return { success: true, analysis };
   } catch (error: unknown) {
@@ -58,9 +60,14 @@ export async function exportImage(params: {
   prefix: string;
   suffix: string;
   separator: string;
+  title: string;
   altText: string;
   metaDescription: string;
   keywords: string[];
+  locationName: string;
+  city: string;
+  stateProvince: string;
+  country: string;
 }): Promise<{ success: boolean; finalFileName?: string; error?: string }> {
   try {
     const ext = path.extname(params.originalFileName);
@@ -80,9 +87,14 @@ export async function exportImage(params: {
     await copyFileWithNewName(sourceFilePath, params.destPath, uniqueFileName);
     await writeMetadataFile(params.destPath, baseName, {
       fileName: uniqueFileName,
+      title: params.title,
       altText: params.altText,
       metaDescription: params.metaDescription,
       keywords: params.keywords,
+      locationName: params.locationName,
+      city: params.city,
+      stateProvince: params.stateProvince,
+      country: params.country,
     });
 
     return { success: true, finalFileName: uniqueFileName };

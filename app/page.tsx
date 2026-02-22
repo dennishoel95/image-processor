@@ -4,13 +4,13 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
-import { scanSourceFolder, processImage, exportImage } from "./actions";
+import { scanSourceFolder, processImage, exportImage, checkApiKey } from "./actions";
 import type { ImageItem, AppSettings } from "@/lib/types";
 
 const SETTINGS_KEY = "image-processor-settings";
 
 const DEFAULT_SETTINGS: AppSettings = {
-  apiKey: "",
+  language: "en",
   sourcePath: "",
   destPath: "",
   prefix: "",
@@ -35,6 +35,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
 
   // Use ref so callbacks always see current images without stale closures
   const imagesRef = useRef(images);
@@ -43,14 +44,15 @@ export default function Home() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  // Load settings from localStorage on mount
+  // Load settings from localStorage and check API key on mount
   useEffect(() => {
     setSettings(loadSettings());
+    checkApiKey().then((result) => setApiKeyConfigured(result.configured));
   }, []);
 
   // Persist settings to localStorage
   useEffect(() => {
-    if (settings.apiKey || settings.sourcePath || settings.destPath) {
+    if (settings.language || settings.sourcePath || settings.destPath) {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     }
   }, [settings]);
@@ -81,10 +83,6 @@ export default function Home() {
   const handleProcessSingle = useCallback(
     async (imageId: string) => {
       const s = settingsRef.current;
-      if (!s.apiKey) {
-        alert("Please enter your Claude API key");
-        return;
-      }
 
       // Find image from ref to avoid stale closure
       const image = imagesRef.current.find((img) => img.id === imageId);
@@ -101,9 +99,9 @@ export default function Home() {
       );
 
       const result = await processImage(
-        s.apiKey,
         s.sourcePath,
-        image.originalFileName
+        image.originalFileName,
+        s.language
       );
 
       setImages((prev) =>
@@ -120,12 +118,6 @@ export default function Home() {
   );
 
   const handleProcessAll = useCallback(async () => {
-    const s = settingsRef.current;
-    if (!s.apiKey) {
-      alert("Please enter your Claude API key");
-      return;
-    }
-
     setIsProcessing(true);
 
     // Get pending images from ref for fresh state
@@ -157,9 +149,14 @@ export default function Home() {
         prefix: s.prefix,
         suffix: s.suffix,
         separator: s.separator,
+        title: image.analysis.title,
         altText: image.analysis.altText,
         metaDescription: image.analysis.metaDescription,
         keywords: image.analysis.keywords,
+        locationName: image.analysis.locationName,
+        city: image.analysis.city,
+        stateProvince: image.analysis.stateProvince,
+        country: image.analysis.country,
       });
 
       if (result.success) {
@@ -189,7 +186,7 @@ export default function Home() {
   const handleUpdateAnalysis = useCallback(
     (
       imageId: string,
-      field: "descriptiveName" | "altText" | "metaDescription" | "keywords",
+      field: "descriptiveName" | "title" | "altText" | "metaDescription" | "keywords" | "locationName" | "city" | "stateProvince" | "country",
       value: string | string[]
     ) => {
       setImages((prev) =>
@@ -203,6 +200,16 @@ export default function Home() {
     []
   );
 
+  const handleRemoveImage = useCallback((imageId: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
+    setSelectedId((prev) => (prev === imageId ? null : prev));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setImages([]);
+    setSelectedId(null);
+  }, []);
+
   const handleFilesDropped = useCallback(
     (_files: File[]) => {
       alert(
@@ -215,24 +222,28 @@ export default function Home() {
   const selectedImage = images.find((img) => img.id === selectedId) || null;
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-snow">
       <SettingsPanel
         settings={settings}
         onSettingsChange={setSettings}
         onScan={handleScan}
         onProcessAll={handleProcessAll}
         onExportAll={handleExportAll}
+        onReset={handleReset}
         isScanning={isScanning}
         isProcessing={isProcessing}
         imageCount={images.length}
+        apiKeyConfigured={apiKeyConfigured}
       />
 
       <ImageGrid
         images={images}
         selectedId={selectedId}
         onSelectImage={setSelectedId}
+        onRemoveImage={handleRemoveImage}
         onFilesDropped={handleFilesDropped}
         sourcePath={settings.sourcePath}
+        language={settings.language}
       />
 
       {selectedImage && (
@@ -244,7 +255,9 @@ export default function Home() {
           onUpdateAnalysis={handleUpdateAnalysis}
           onProcess={handleProcessSingle}
           onExport={handleExportSingle}
+          onClose={() => setSelectedId(null)}
           isProcessing={isProcessing}
+          language={settings.language}
         />
       )}
     </div>

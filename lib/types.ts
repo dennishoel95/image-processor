@@ -8,16 +8,23 @@ export interface ImageItem {
   error?: string;
   analysis?: {
     descriptiveName: string;
+    title: string;
     altText: string;
     metaDescription: string;
     keywords: string[];
+    locationName: string;
+    city: string;
+    stateProvince: string;
+    country: string;
   };
   finalFileName?: string;
   exported: boolean;
 }
 
+import type { Language } from "./i18n";
+
 export interface AppSettings {
-  apiKey: string;
+  language: Language;
   sourcePath: string;
   destPath: string;
   prefix: string;

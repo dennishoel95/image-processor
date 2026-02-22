@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f9fa;
+  --foreground: #212529;
 }
 
 @theme inline {
@@ -10,6 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-snow: #f8f9fa;
+  --color-platinum: #e9ecef;
+  --color-alabaster: #dee2e6;
+  --color-pale: #ced4da;
+  --color-muted: #adb5bd;
+  --color-slate: #6c757d;
+  --color-iron: #495057;
+  --color-gunmetal: #343a40;
+  --color-carbon: #212529;
 }
 
 body {
@@ -19,9 +28,9 @@ body {
 }
 
 input, textarea, select {
-  color: #171717;
+  color: #212529;
 }
 
 input::placeholder, textarea::placeholder {
-  color: #9ca3af;
+  color: #adb5bd;
 }

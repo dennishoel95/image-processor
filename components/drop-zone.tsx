@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { t, type Language } from "@/lib/i18n";
 
 interface DropZoneProps {
   onFilesDropped: (files: File[]) => void;
+  language: Language;
 }
 
-export function DropZone({ onFilesDropped }: DropZoneProps) {
+export function DropZone({ onFilesDropped, language }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -42,13 +44,13 @@ export function DropZone({ onFilesDropped }: DropZoneProps) {
       onDrop={handleDrop}
       className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
         isDragOver
-          ? "border-blue-500 bg-blue-50"
-          : "border-gray-300 bg-gray-50 hover:border-gray-400"
+          ? "border-slate bg-platinum"
+          : "border-pale bg-snow hover:border-muted"
       }`}
     >
-      <div className="text-gray-500">
+      <div className="text-slate">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400"
+          className="mx-auto h-12 w-12 text-muted"
           stroke="currentColor"
           fill="none"
           viewBox="0 0 48 48"
@@ -61,10 +63,10 @@ export function DropZone({ onFilesDropped }: DropZoneProps) {
           />
         </svg>
         <p className="mt-2 text-sm font-medium">
-          Drop images here
+          {t("dropImages", language)}
         </p>
-        <p className="mt-1 text-xs text-gray-400">
-          or use the source folder scan
+        <p className="mt-1 text-xs text-muted">
+          {t("dropSub", language)}
         </p>
       </div>
     </div>

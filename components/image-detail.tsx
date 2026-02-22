@@ -77,7 +77,7 @@ export function ImageDetail({
       <div className="aspect-video bg-platinum rounded-lg overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`/api/thumbnail?path=${encodeURIComponent(image.sourcePath)}`}
+          src={image.thumbnailUrl}
           alt={analysis?.altText || image.originalFileName}
           className="w-full h-full object-contain"
         />

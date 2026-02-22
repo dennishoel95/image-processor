@@ -10,8 +10,7 @@ interface ImageGridProps {
   selectedId: string | null;
   onSelectImage: (id: string) => void;
   onRemoveImage: (id: string) => void;
-  onFilesDropped: (files: File[]) => void;
-  sourcePath: string;
+  onFilesSelected: (files: File[]) => void;
   language: Language;
 }
 
@@ -20,12 +19,16 @@ export function ImageGrid({
   selectedId,
   onSelectImage,
   onRemoveImage,
-  onFilesDropped,
+  onFilesSelected,
   language,
 }: ImageGridProps) {
   return (
     <div className="flex-1 p-4 overflow-y-auto">
-      <DropZone onFilesDropped={onFilesDropped} language={language} />
+      <DropZone
+        onFilesSelected={onFilesSelected}
+        currentCount={images.length}
+        language={language}
+      />
 
       {images.length === 0 ? (
         <div className="mt-8 text-center text-muted">
@@ -47,9 +50,7 @@ export function ImageGrid({
                 isSelected={image.id === selectedId}
                 onClick={() => onSelectImage(image.id)}
                 onRemove={onRemoveImage}
-                thumbnailUrl={`/api/thumbnail?path=${encodeURIComponent(
-                  image.sourcePath
-                )}`}
+                thumbnailUrl={image.thumbnailUrl}
                 language={language}
               />
             ))}

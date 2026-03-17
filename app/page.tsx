@@ -104,6 +104,7 @@ export default function Home() {
   const [processProgress, setProcessProgress] = useState({ current: 0, total: 0 });
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [toolOpen, setToolOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"grid" | "settings" | "details">("grid");
 
   const imagesRef = useRef(images);
   imagesRef.current = images;
@@ -323,6 +324,11 @@ export default function Home() {
     setSelectedId(null);
   }, []);
 
+  const handleSelectImage = useCallback((id: string) => {
+    setSelectedId(id);
+    setMobileTab("details");
+  }, []);
+
   const selectedImage = images.find((img) => img.id === selectedId) || null;
   const processedCount = images.filter(
     (img) => img.status === "done" && img.analysis
@@ -347,21 +353,21 @@ export default function Home() {
           />
 
           {/* Panel */}
-          <div className="overlay-panel relative z-10 flex flex-col m-4 mt-6 mb-4 rounded-xl border border-elevated bg-surface overflow-hidden shadow-2xl shadow-black/40 flex-1">
+          <div className="overlay-panel relative z-10 flex flex-col m-1 mt-2 mb-0 md:m-4 md:mt-6 md:mb-4 rounded-t-xl md:rounded-xl border border-elevated bg-surface overflow-hidden shadow-2xl shadow-black/40 flex-1">
             {/* Header bar */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-elevated bg-surface/80 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <h2 className="font-display font-light text-cream text-lg">
+            <div className="flex items-center justify-between px-3 py-2 md:px-5 md:py-3 border-b border-elevated bg-surface/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 md:gap-3">
+                <h2 className="font-display font-light text-cream text-base md:text-lg">
                   Image Processor
                 </h2>
-                <span className="text-[10px] text-dim tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-raised">
+                <span className="hidden sm:inline text-[10px] text-dim tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-raised">
                   AI Vision
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setToolOpen(false)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="12" cy="12" r="10" />
@@ -381,48 +387,108 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Tool body */}
-            <div className="flex flex-1 overflow-hidden">
-              <SettingsPanel
-                settings={settings}
-                onSettingsChange={setSettings}
-                onProcessAll={handleProcessAll}
-                onExportAll={handleExportAll}
-                onExportCsv={handleExportCsv}
-                onReset={handleReset}
-                isProcessing={isProcessing}
-                processProgress={processProgress}
-                imageCount={images.length}
-                processedCount={processedCount}
-                apiKeyConfigured={apiKeyConfigured}
-              />
-
-              <ImageGrid
-                images={images}
-                selectedId={selectedId}
-                onSelectImage={setSelectedId}
-                onRemoveImage={handleRemoveImage}
-                onFilesSelected={handleFilesSelected}
-                language={settings.language}
-              />
-
-              {selectedImage && (
-                <ImageDetail
-                  image={selectedImage}
-                  prefix={settings.prefix}
-                  suffix={settings.suffix}
-                  separator={settings.separator}
-                  copyright={settings.copyright}
-                  creator={settings.creator}
-                  rightsUrl={settings.rightsUrl}
-                  onUpdateAnalysis={handleUpdateAnalysis}
-                  onProcess={handleProcessSingle}
-                  onExport={() => handleExportAll()}
-                  onClose={() => setSelectedId(null)}
+            {/* Tool body — desktop: side-by-side, mobile: tab-switched */}
+            <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+              {/* Desktop: always show settings panel. Mobile: show only when tab active */}
+              <div className={`${mobileTab === "settings" ? "flex" : "hidden"} md:flex flex-col w-full md:w-auto`}>
+                <SettingsPanel
+                  settings={settings}
+                  onSettingsChange={setSettings}
+                  onProcessAll={handleProcessAll}
+                  onExportAll={handleExportAll}
+                  onExportCsv={handleExportCsv}
+                  onReset={handleReset}
                   isProcessing={isProcessing}
+                  processProgress={processProgress}
+                  imageCount={images.length}
+                  processedCount={processedCount}
+                  apiKeyConfigured={apiKeyConfigured}
+                />
+              </div>
+
+              {/* Desktop: always show grid. Mobile: show only when tab active */}
+              <div className={`${mobileTab === "grid" ? "flex" : "hidden"} md:flex flex-col flex-1 min-w-0`}>
+                <ImageGrid
+                  images={images}
+                  selectedId={selectedId}
+                  onSelectImage={handleSelectImage}
+                  onRemoveImage={handleRemoveImage}
+                  onFilesSelected={handleFilesSelected}
                   language={settings.language}
                 />
+              </div>
+
+              {/* Desktop: show when selected. Mobile: show only when tab active + selected */}
+              {selectedImage && (
+                <div className={`${mobileTab === "details" ? "flex" : "hidden"} md:flex flex-col w-full md:w-auto`}>
+                  <ImageDetail
+                    image={selectedImage}
+                    prefix={settings.prefix}
+                    suffix={settings.suffix}
+                    separator={settings.separator}
+                    copyright={settings.copyright}
+                    creator={settings.creator}
+                    rightsUrl={settings.rightsUrl}
+                    onUpdateAnalysis={handleUpdateAnalysis}
+                    onProcess={handleProcessSingle}
+                    onExport={() => handleExportAll()}
+                    onClose={() => { setSelectedId(null); setMobileTab("grid"); }}
+                    isProcessing={isProcessing}
+                    language={settings.language}
+                  />
+                </div>
               )}
+
+              {/* Mobile: no image selected on details tab */}
+              {!selectedImage && mobileTab === "details" && (
+                <div className="flex md:hidden flex-1 items-center justify-center text-dim text-sm">
+                  Select an image to view details
+                </div>
+              )}
+            </div>
+
+            {/* Mobile tab bar */}
+            <div className="flex md:hidden border-t border-elevated bg-surface/90 backdrop-blur-sm">
+              <button
+                onClick={() => setMobileTab("settings")}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
+                  mobileTab === "settings" ? "text-warm-dim" : "text-dim"
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                Settings
+              </button>
+              <button
+                onClick={() => setMobileTab("grid")}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
+                  mobileTab === "grid" ? "text-warm-dim" : "text-dim"
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Images
+              </button>
+              <button
+                onClick={() => setMobileTab("details")}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
+                  mobileTab === "details" ? "text-warm-dim" : "text-dim"
+                } ${selectedImage ? "" : "opacity-40"}`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                Details
+              </button>
             </div>
           </div>
         </div>

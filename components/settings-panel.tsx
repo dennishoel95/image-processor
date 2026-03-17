@@ -40,7 +40,7 @@ export function SettingsPanel({
     "w-full rounded-md border border-raised bg-surface px-3 py-2 text-sm text-cream placeholder:text-dim focus:border-warm-dim focus:outline-none focus:ring-1 focus:ring-warm-dim";
 
   return (
-    <div className="w-80 border-r border-elevated bg-surface p-5 flex flex-col gap-4 overflow-y-auto dark-scroll">
+    <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-elevated bg-surface p-4 md:p-5 flex flex-col gap-4 overflow-y-auto dark-scroll">
       <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
         {t("settings", lang)}
       </h2>

@@ -75,7 +75,7 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
-      className={`border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer ${
+      className={`border-2 border-dashed rounded-lg p-4 md:p-8 text-center transition-all cursor-pointer ${
         isDragOver
           ? "border-warm-dim bg-elevated"
           : "border-raised bg-surface hover:border-dim hover:bg-elevated"

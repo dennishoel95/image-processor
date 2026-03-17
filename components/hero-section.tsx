@@ -270,7 +270,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
 
         {/* Language selector */}
         <div
-          className="animate-fade-up flex items-center justify-center gap-2 mb-8"
+          className="animate-fade-up flex flex-wrap items-center justify-center gap-2 mb-8"
           style={{ animationDelay: "0.8s" }}
         >
           {LANGUAGES.map((l) => (

@@ -76,7 +76,7 @@ export function ImageDetail({
   const labelClass = "block text-xs font-medium text-dim mb-1";
 
   return (
-    <div className="w-96 border-l border-elevated bg-surface p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
+    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-elevated bg-surface p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
           {t("imageDetails", language)}

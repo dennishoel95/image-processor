@@ -6,16 +6,6 @@ function generateMetadataMarkdown(
   fileName: string,
   analysis: NonNullable<ImageItem["analysis"]>
 ): string {
-  const dateCreated = new Date().toISOString().split("T")[0];
-
-  const locationParts = [
-    analysis.locationName,
-    analysis.city,
-    analysis.stateProvince,
-    analysis.country,
-  ].filter(Boolean);
-  const locationString = locationParts.join(", ") || "—";
-
   return `# ${fileName}
 
 ## Title
@@ -29,27 +19,6 @@ ${analysis.metaDescription || "—"}
 
 ## Keywords
 ${analysis.keywords.length > 0 ? analysis.keywords.join(", ") : "—"}
-
-## Copyright
-<!-- Fill in: e.g. © ${new Date().getFullYear()} Your Company. All rights reserved. -->
-
-## Creator
-<!-- Fill in: e.g. Photography: Name | Edit: Design Team -->
-
-## Date Created
-${dateCreated}
-
-## Web Statement of Rights
-<!-- Fill in: e.g. https://example.com/image-licensing-terms -->
-
-## Location
-${locationString}
-
-### Location Details
-- **Location Name:** ${analysis.locationName || "—"}
-- **City:** ${analysis.city || "—"}
-- **State/Province:** ${analysis.stateProvince || "—"}
-- **Country:** ${analysis.country || "—"}
 `;
 }
 

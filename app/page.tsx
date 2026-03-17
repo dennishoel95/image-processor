@@ -282,7 +282,11 @@ export default function Home() {
   return (
     <main className="h-screen overflow-hidden">
       {/* Hero — always visible behind overlay */}
-      <HeroSection onScrollToTool={() => setToolOpen(true)} />
+      <HeroSection
+        onScrollToTool={() => setToolOpen(true)}
+        language={settings.language}
+        onLanguageChange={(lang) => setSettings((s) => ({ ...s, language: lang }))}
+      />
 
       {/* Tool overlay */}
       {toolOpen && (

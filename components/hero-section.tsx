@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { LANGUAGES, type Language } from "@/lib/i18n";
 
 interface Particle {
   x: number;
@@ -35,7 +36,13 @@ function generateParticles(count: number): Particle[] {
   }));
 }
 
-export function HeroSection({ onScrollToTool }: { onScrollToTool: () => void }) {
+interface HeroProps {
+  onScrollToTool: () => void;
+  language: Language;
+  onLanguageChange: (lang: Language) => void;
+}
+
+export function HeroSection({ onScrollToTool, language, onLanguageChange }: HeroProps) {
   const particlesRef = useRef<Particle[]>(generateParticles(24));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const motesRef = useRef<CursorMote[]>([]);
@@ -261,8 +268,29 @@ export function HeroSection({ onScrollToTool }: { onScrollToTool: () => void }) 
           ))}
         </div>
 
+        {/* Language selector */}
+        <div
+          className="animate-fade-up flex items-center justify-center gap-2 mb-8"
+          style={{ animationDelay: "0.8s" }}
+        >
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => onLanguageChange(l.code as Language)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                language === l.code
+                  ? "bg-elevated text-cream border-warm-dim/40"
+                  : "bg-transparent text-fog border-raised hover:bg-elevated hover:text-cream"
+              }`}
+            >
+              <span>{l.flag}</span>
+              <span>{l.name}</span>
+            </button>
+          ))}
+        </div>
+
         {/* CTA */}
-        <div className="animate-fade-up" style={{ animationDelay: "0.85s" }}>
+        <div className="animate-fade-up" style={{ animationDelay: "0.9s" }}>
           <button
             onClick={onScrollToTool}
             className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-warm/40 text-cream font-body font-medium text-sm tracking-wide transition-all duration-300 hover:bg-warm/10 hover:border-warm/70 hover:shadow-[0_0_30px_rgba(197,163,100,0.12)]"

@@ -414,6 +414,9 @@ export default function Home() {
                   onSelectImage={handleSelectImage}
                   onRemoveImage={handleRemoveImage}
                   onFilesSelected={handleFilesSelected}
+                  prefix={settings.prefix}
+                  suffix={settings.suffix}
+                  separator={settings.separator}
                   language={settings.language}
                 />
               </div>

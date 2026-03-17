@@ -9,7 +9,23 @@ interface ImageCardProps {
   onClick: () => void;
   onRemove: (id: string) => void;
   thumbnailUrl: string;
+  prefix: string;
+  suffix: string;
+  separator: string;
   language: Language;
+}
+
+function buildPreviewName(
+  prefix: string,
+  aiName: string,
+  suffix: string,
+  separator: string,
+): string {
+  const parts: string[] = [];
+  if (prefix.trim()) parts.push(prefix.trim());
+  parts.push(aiName.trim());
+  if (suffix.trim()) parts.push(suffix.trim());
+  return parts.join(separator);
 }
 
 export function ImageCard({
@@ -18,6 +34,9 @@ export function ImageCard({
   onClick,
   onRemove,
   thumbnailUrl,
+  prefix,
+  suffix,
+  separator,
   language,
 }: ImageCardProps) {
   return (
@@ -58,7 +77,7 @@ export function ImageCard({
         <p className="text-xs text-dim truncate">{image.originalFileName}</p>
         {image.analysis && (
           <p className="text-sm font-medium text-cream truncate mt-0.5">
-            {image.analysis.descriptiveName}
+            {buildPreviewName(prefix, image.analysis.descriptiveName, suffix, separator)}
           </p>
         )}
         {image.status === "error" && image.error && (

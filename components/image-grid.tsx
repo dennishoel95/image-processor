@@ -11,6 +11,9 @@ interface ImageGridProps {
   onSelectImage: (id: string) => void;
   onRemoveImage: (id: string) => void;
   onFilesSelected: (files: File[]) => void;
+  prefix: string;
+  suffix: string;
+  separator: string;
   language: Language;
 }
 
@@ -20,6 +23,9 @@ export function ImageGrid({
   onSelectImage,
   onRemoveImage,
   onFilesSelected,
+  prefix,
+  suffix,
+  separator,
   language,
 }: ImageGridProps) {
   return (
@@ -51,6 +57,9 @@ export function ImageGrid({
                 onClick={() => onSelectImage(image.id)}
                 onRemove={onRemoveImage}
                 thumbnailUrl={image.thumbnailUrl}
+                prefix={prefix}
+                suffix={suffix}
+                separator={separator}
                 language={language}
               />
             ))}

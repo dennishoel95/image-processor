@@ -49,6 +49,50 @@ function getMediaType(
   return map[file.type] || "image/jpeg";
 }
 
+const MAX_DIMENSION = 2048;
+
+function compressImage(
+  file: File
+): Promise<{ dataUrl: string; mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" }> {
+  return new Promise((resolve) => {
+    const mediaType = getMediaType(file);
+
+    // GIFs can't be reliably drawn to canvas (animation), skip compression
+    if (mediaType === "image/gif") {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ dataUrl: reader.result as string, mediaType });
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+
+      // Only resize if exceeding max dimension
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const scale = MAX_DIMENSION / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Use webp for best compression, fall back to jpeg
+      const outputType = "image/webp";
+      const dataUrl = canvas.toDataURL(outputType, 0.85);
+      resolve({ dataUrl, mediaType: "image/webp" });
+    };
+    img.src = objectUrl;
+  });
+}
+
 export default function Home() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [images, setImages] = useState<ImageItem[]>([]);
@@ -83,24 +127,18 @@ export default function Home() {
   }, []);
 
   const handleFilesSelected = useCallback((files: File[]) => {
-    const promises = files.map(
-      (file) =>
-        new Promise<ImageItem>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve({
-              id: crypto.randomUUID(),
-              originalFileName: file.name,
-              fileData: reader.result as string,
-              thumbnailUrl: URL.createObjectURL(file),
-              mediaType: getMediaType(file),
-              status: "pending",
-              exported: false,
-            });
-          };
-          reader.readAsDataURL(file);
-        })
-    );
+    const promises = files.map(async (file): Promise<ImageItem> => {
+      const { dataUrl, mediaType } = await compressImage(file);
+      return {
+        id: crypto.randomUUID(),
+        originalFileName: file.name,
+        fileData: dataUrl,
+        thumbnailUrl: URL.createObjectURL(file),
+        mediaType,
+        status: "pending",
+        exported: false,
+      };
+    });
 
     Promise.all(promises).then((items) => {
       setImages((prev) => [...prev, ...items]);
@@ -121,25 +159,36 @@ export default function Home() {
         )
       );
 
-      const result = await processImage(
-        image.fileData,
-        image.mediaType,
-        s.language
-      );
+      try {
+        const result = await processImage(
+          image.fileData,
+          image.mediaType,
+          s.language
+        );
 
-      setImages((prev) =>
-        prev.map((img) =>
-          img.id === imageId
-            ? result.success
-              ? { ...img, status: "done" as const, analysis: result.analysis }
-              : {
-                  ...img,
-                  status: "error" as const,
-                  error: result.error || "Unknown error",
-                }
-            : img
-        )
-      );
+        setImages((prev) =>
+          prev.map((img) =>
+            img.id === imageId
+              ? result.success
+                ? { ...img, status: "done" as const, analysis: result.analysis }
+                : {
+                    ...img,
+                    status: "error" as const,
+                    error: result.error || "Unknown error",
+                  }
+              : img
+          )
+        );
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setImages((prev) =>
+          prev.map((img) =>
+            img.id === imageId
+              ? { ...img, status: "error" as const, error: message }
+              : img
+          )
+        );
+      }
     },
     []
   );

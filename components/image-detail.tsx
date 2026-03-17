@@ -8,6 +8,9 @@ interface ImageDetailProps {
   prefix: string;
   suffix: string;
   separator: string;
+  copyright: string;
+  creator: string;
+  rightsUrl: string;
   onUpdateAnalysis: (
     imageId: string,
     field: "descriptiveName" | "title" | "altText" | "metaDescription" | "keywords" | "locationName" | "city" | "stateProvince" | "country",
@@ -36,11 +39,24 @@ function buildPreviewName(
   return `${baseName}${extension.toLowerCase()}`;
 }
 
+function CharCount({ value, max, warn }: { value: string; max: number; warn: number }) {
+  const len = value.length;
+  const color = len > max ? "text-red-400" : len > warn ? "text-yellow-400" : "text-dim";
+  return (
+    <span className={`text-[10px] tabular-nums ${color}`}>
+      {len}/{max}
+    </span>
+  );
+}
+
 export function ImageDetail({
   image,
   prefix,
   suffix,
   separator,
+  copyright,
+  creator,
+  rightsUrl,
   onUpdateAnalysis,
   onProcess,
   onExport,
@@ -132,7 +148,10 @@ export function ImageDetail({
 
           {/* Title */}
           <div>
-            <label className={labelClass}>{t("title", language)}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-medium text-dim">{t("title", language)}</label>
+              <CharCount value={analysis.title} max={100} warn={90} />
+            </div>
             <input
               type="text"
               value={analysis.title}
@@ -143,7 +162,10 @@ export function ImageDetail({
 
           {/* Alt Text */}
           <div>
-            <label className={labelClass}>{t("altText", language)}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-medium text-dim">{t("altText", language)}</label>
+              <CharCount value={analysis.altText} max={125} warn={110} />
+            </div>
             <textarea
               value={analysis.altText}
               onChange={(e) => onUpdateAnalysis(image.id, "altText", e.target.value)}
@@ -154,7 +176,10 @@ export function ImageDetail({
 
           {/* Description */}
           <div>
-            <label className={labelClass}>{t("description", language)}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-medium text-dim">{t("description", language)}</label>
+              <CharCount value={analysis.metaDescription} max={160} warn={145} />
+            </div>
             <textarea
               value={analysis.metaDescription}
               onChange={(e) => onUpdateAnalysis(image.id, "metaDescription", e.target.value)}
@@ -241,8 +266,17 @@ ${analysis.metaDescription}
 ## ${t("keywords", language)}
 ${analysis.keywords.join(", ")}
 
+## ${t("copyright", language)}
+${copyright || "—"}
+
+## ${t("creator", language)}
+${creator || "—"}
+
+## ${t("webRights", language)}
+${rightsUrl || "—"}
+
 ## ${t("location", language)}
-${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.country].filter(Boolean).join(", ") || "\u2014"}`}
+${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.country].filter(Boolean).join(", ") || "—"}`}
             </pre>
           </div>
 

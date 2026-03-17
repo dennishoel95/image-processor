@@ -78,17 +78,20 @@ Rules for descriptiveName:
 - Use proper ${langName} terms, not literal translations from English
 
 Rules for title:
-- Concise human-readable heading, 50-100 characters
-- Written in grammatically correct ${langName}
+- Concise human-readable heading in grammatically correct ${langName}
+- STRICT LIMIT: Must be between 50 and 100 characters (count carefully before responding)
+- If under 50 chars, add more descriptive detail; if over 100 chars, shorten
 
 Rules for altText:
 - One clear sentence in ${langName} describing what's in the image
-- Maximum 125 characters
-- Useful for screen readers
+- STRICT LIMIT: Maximum 125 characters (IPTC standard — count carefully before responding)
+- Useful for screen readers and AI systems parsing images
 - Must use proper ${langName} terminology and grammar
+- Do NOT exceed 125 characters under any circumstances
 
 Rules for metaDescription:
 - Detailed description in ${langName}, 1-3 sentences
+- STRICT LIMIT: Must be between 150 and 160 characters (Google optimal range — count carefully)
 - SEO and GEO optimized for search engines and AI systems
 - Describes the image content, context, and potential use
 - Must follow ${langName} grammar and use established vocabulary

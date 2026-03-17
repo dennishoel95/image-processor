@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { t, type Language } from "@/lib/i18n";
 
-const MAX_FILES = 10;
+const MAX_FILES = 50;
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 

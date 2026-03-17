@@ -6,7 +6,7 @@ import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
 import { processImage, checkApiKey } from "./actions";
-import { exportAsZip } from "@/lib/export";
+import { exportAsZip, exportAsCsv } from "@/lib/export";
 import type { ImageItem, AppSettings } from "@/lib/types";
 
 const SETTINGS_KEY = "image-processor-settings";
@@ -16,6 +16,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   prefix: "",
   suffix: "",
   separator: "-",
+  copyright: "",
+  creator: "",
+  rightsUrl: "",
 };
 
 function loadSettings(): AppSettings {
@@ -29,6 +32,9 @@ function loadSettings(): AppSettings {
         prefix: parsed.prefix || DEFAULT_SETTINGS.prefix,
         suffix: parsed.suffix || DEFAULT_SETTINGS.suffix,
         separator: parsed.separator || DEFAULT_SETTINGS.separator,
+        copyright: parsed.copyright ?? DEFAULT_SETTINGS.copyright,
+        creator: parsed.creator ?? DEFAULT_SETTINGS.creator,
+        rightsUrl: parsed.rightsUrl ?? DEFAULT_SETTINGS.rightsUrl,
       };
     }
   } catch {
@@ -95,6 +101,7 @@ export default function Home() {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processProgress, setProcessProgress] = useState({ current: 0, total: 0 });
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [toolOpen, setToolOpen] = useState(false);
 
@@ -105,8 +112,15 @@ export default function Home() {
   settingsRef.current = settings;
 
   useEffect(() => {
-    setSettings(loadSettings());
+    const loaded = loadSettings();
+    setSettings(loaded);
     checkApiKey().then((result) => setApiKeyConfigured(result.configured));
+
+    // Returning users skip the hero — open tool directly
+    const isReturningUser = localStorage.getItem(SETTINGS_KEY) !== null;
+    if (isReturningUser) {
+      setToolOpen(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -201,11 +215,26 @@ export default function Home() {
   );
 
   const handleProcessAll = useCallback(async () => {
+    const CONCURRENCY = 3;
     setIsProcessing(true);
     const pending = imagesRef.current.filter((img) => img.status === "pending");
-    for (const image of pending) {
-      await handleProcessSingle(image.id);
-    }
+    setProcessProgress({ current: 0, total: pending.length });
+
+    let completed = 0;
+    let nextIndex = 0;
+
+    const runNext = async (): Promise<void> => {
+      while (nextIndex < pending.length) {
+        const i = nextIndex++;
+        await handleProcessSingle(pending[i].id);
+        completed++;
+        setProcessProgress({ current: completed, total: pending.length });
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(CONCURRENCY, pending.length) }, () => runNext());
+    await Promise.all(workers);
+
     setIsProcessing(false);
   }, [handleProcessSingle]);
 
@@ -220,6 +249,9 @@ export default function Home() {
       prefix: s.prefix,
       suffix: s.suffix,
       separator: s.separator,
+      copyright: s.copyright,
+      creator: s.creator,
+      rightsUrl: s.rightsUrl,
     });
 
     setImages((prev) =>
@@ -229,6 +261,23 @@ export default function Home() {
           : img
       )
     );
+  }, []);
+
+  const handleExportCsv = useCallback(() => {
+    const s = settingsRef.current;
+    const processed = imagesRef.current.filter(
+      (img) => img.status === "done" && img.analysis
+    );
+    if (processed.length === 0) return;
+
+    exportAsCsv(processed, {
+      prefix: s.prefix,
+      suffix: s.suffix,
+      separator: s.separator,
+      copyright: s.copyright,
+      creator: s.creator,
+      rightsUrl: s.rightsUrl,
+    });
   }, []);
 
   const handleUpdateAnalysis = useCallback(
@@ -309,15 +358,27 @@ export default function Home() {
                   AI Vision
                 </span>
               </div>
-              <button
-                onClick={() => setToolOpen(false)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
-              >
-                <span>Close</span>
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M1 1l12 12M13 1L1 13" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setToolOpen(false)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4M12 8h.01" />
+                  </svg>
+                  <span>About</span>
+                </button>
+                <button
+                  onClick={() => setToolOpen(false)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+                >
+                  <span>Close</span>
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M1 1l12 12M13 1L1 13" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Tool body */}
@@ -327,8 +388,10 @@ export default function Home() {
                 onSettingsChange={setSettings}
                 onProcessAll={handleProcessAll}
                 onExportAll={handleExportAll}
+                onExportCsv={handleExportCsv}
                 onReset={handleReset}
                 isProcessing={isProcessing}
+                processProgress={processProgress}
                 imageCount={images.length}
                 processedCount={processedCount}
                 apiKeyConfigured={apiKeyConfigured}
@@ -349,6 +412,9 @@ export default function Home() {
                   prefix={settings.prefix}
                   suffix={settings.suffix}
                   separator={settings.separator}
+                  copyright={settings.copyright}
+                  creator={settings.creator}
+                  rightsUrl={settings.rightsUrl}
                   onUpdateAnalysis={handleUpdateAnalysis}
                   onProcess={handleProcessSingle}
                   onExport={() => handleExportAll()}

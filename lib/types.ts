@@ -30,4 +30,7 @@ export interface AppSettings {
   prefix: string;
   suffix: string;
   separator: string;
+  copyright: string;
+  creator: string;
+  rightsUrl: string;
 }

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f9fa;
-  --foreground: #212529;
+  --background: #16161a;
+  --foreground: #e8e0d0;
 }
 
 @theme inline {
@@ -10,6 +10,8 @@
   --color-foreground: var(--foreground);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+
+  /* Legacy neutral (kept for compatibility) */
   --color-snow: #f8f9fa;
   --color-platinum: #e9ecef;
   --color-alabaster: #dee2e6;
@@ -20,14 +22,16 @@
   --color-gunmetal: #343a40;
   --color-carbon: #212529;
 
-  /* Hero palette */
+  /* Dark palette */
   --color-deep: #16161a;
   --color-surface: #1e1e23;
   --color-elevated: #27272d;
+  --color-raised: #313138;
   --color-warm: #c5a364;
   --color-warm-dim: #a08550;
   --color-cream: #e8e0d0;
   --color-fog: #94918b;
+  --color-dim: #6b6963;
 }
 
 body {
@@ -36,12 +40,13 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
+/* Dark-themed inputs */
 input, textarea, select {
-  color: #212529;
+  color: var(--color-cream);
 }
 
 input::placeholder, textarea::placeholder {
-  color: #adb5bd;
+  color: var(--color-dim);
 }
 
 /* ── Floating particles ── */
@@ -80,17 +85,6 @@ input::placeholder, textarea::placeholder {
   }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.15;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scale(1.1);
-  }
-}
-
 .particle {
   position: absolute;
   border-radius: 50%;
@@ -122,7 +116,7 @@ input::placeholder, textarea::placeholder {
   animation: fade-up 0.8s ease-out both;
 }
 
-/* ── Gradient line ── */
+/* ── Shimmer line ── */
 
 @keyframes shimmer {
   0% {
@@ -145,8 +139,48 @@ input::placeholder, textarea::placeholder {
   animation: shimmer 4s ease-in-out infinite;
 }
 
-/* ── Tool section ── */
+/* ── Overlay ── */
 
-.tool-section {
-  min-height: 80vh;
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.overlay-backdrop {
+  animation: overlay-fade 0.3s ease-out both;
+}
+
+.overlay-panel {
+  animation: overlay-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.05s;
+}
+
+/* ── Scrollbar styling for dark panels ── */
+
+.dark-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dark-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-raised);
+  border-radius: 3px;
+}
+
+.dark-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dim);
 }

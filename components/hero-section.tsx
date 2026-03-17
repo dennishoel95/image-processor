@@ -282,7 +282,7 @@ export function HeroSection({ onScrollToTool }: { onScrollToTool: () => void }) 
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-snow to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-deep to-transparent pointer-events-none" />
     </section>
   );
 }

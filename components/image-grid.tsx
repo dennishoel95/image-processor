@@ -23,7 +23,7 @@ export function ImageGrid({
   language,
 }: ImageGridProps) {
   return (
-    <div className="flex-1 p-4 overflow-y-auto">
+    <div className="flex-1 p-4 overflow-y-auto dark-scroll">
       <DropZone
         onFilesSelected={onFilesSelected}
         currentCount={images.length}
@@ -31,7 +31,7 @@ export function ImageGrid({
       />
 
       {images.length === 0 ? (
-        <div className="mt-8 text-center text-muted">
+        <div className="mt-8 text-center text-dim">
           <p>{t("noImages", language)}</p>
           <p className="text-sm mt-1">
             {t("noImagesSub", language)}
@@ -39,7 +39,7 @@ export function ImageGrid({
         </div>
       ) : (
         <>
-          <p className="mt-4 mb-3 text-sm text-slate">
+          <p className="mt-4 mb-3 text-sm text-fog">
             {images.length} {images.length !== 1 ? t("imagesFound", language) : t("imageFound", language)}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">

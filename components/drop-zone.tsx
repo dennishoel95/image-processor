@@ -64,7 +64,6 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || []);
       validateAndEmit(files);
-      // Reset input so same files can be re-selected
       e.target.value = "";
     },
     [validateAndEmit]
@@ -76,10 +75,10 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
-      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+      className={`border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer ${
         isDragOver
-          ? "border-slate bg-platinum"
-          : "border-pale bg-snow hover:border-muted"
+          ? "border-warm-dim bg-elevated"
+          : "border-raised bg-surface hover:border-dim hover:bg-elevated"
       }`}
     >
       <input
@@ -90,9 +89,9 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
         onChange={handleFileChange}
         className="hidden"
       />
-      <div className="text-slate">
+      <div>
         <svg
-          className="mx-auto h-12 w-12 text-muted"
+          className="mx-auto h-12 w-12 text-dim"
           stroke="currentColor"
           fill="none"
           viewBox="0 0 48 48"
@@ -104,13 +103,13 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
             strokeLinejoin="round"
           />
         </svg>
-        <p className="mt-2 text-sm font-medium">
+        <p className="mt-2 text-sm font-medium text-fog">
           {t("dropImages", language)}
         </p>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-dim">
           {t("dropSubBrowser", language)}
         </p>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-1 text-xs text-dim">
           {currentCount}/{MAX_FILES} {t("imagesLoaded", language)}
         </p>
       </div>

@@ -32,13 +32,18 @@ export function SettingsPanel({
     onSettingsChange({ ...settings, [field]: value });
   };
 
+  const inputClass =
+    "w-full rounded-md border border-raised bg-surface px-3 py-2 text-sm text-cream placeholder:text-dim focus:border-warm-dim focus:outline-none focus:ring-1 focus:ring-warm-dim";
+
   return (
-    <div className="w-80 border-r border-alabaster bg-platinum p-4 flex flex-col gap-4 overflow-y-auto">
-      <h2 className="text-lg font-semibold text-carbon">{t("settings", lang)}</h2>
+    <div className="w-80 border-r border-elevated bg-surface p-5 flex flex-col gap-4 overflow-y-auto dark-scroll">
+      <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
+        {t("settings", lang)}
+      </h2>
 
       {/* Language selector */}
       <div>
-        <label className="block text-sm font-medium text-iron mb-2">
+        <label className="block text-xs font-medium text-dim mb-2">
           {t("language", lang)}
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -48,8 +53,8 @@ export function SettingsPanel({
               onClick={() => onSettingsChange({ ...settings, language: l.code as Language })}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 settings.language === l.code
-                  ? "bg-pale text-carbon border-muted hover:bg-muted/40 hover:shadow-sm"
-                  : "bg-snow text-iron border-pale hover:bg-alabaster hover:shadow-sm"
+                  ? "bg-elevated text-cream border-warm-dim/40"
+                  : "bg-surface text-fog border-raised hover:bg-elevated hover:text-cream"
               }`}
             >
               <span>{l.flag}</span>
@@ -61,18 +66,18 @@ export function SettingsPanel({
 
       {!apiKeyConfigured && (
         <>
-          <hr className="border-alabaster" />
-          <div className="rounded-md px-3 py-2 text-sm bg-snow text-iron border border-pale">
+          <hr className="border-elevated" />
+          <div className="rounded-md px-3 py-2 text-sm bg-elevated text-fog border border-raised">
             {t("apiError", lang)}
           </div>
         </>
       )}
 
-      <hr className="border-alabaster" />
+      <hr className="border-elevated" />
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-iron mb-1">
+          <label className="block text-xs font-medium text-dim mb-1">
             {t("prefix", lang)}
           </label>
           <input
@@ -80,11 +85,11 @@ export function SettingsPanel({
             value={settings.prefix}
             onChange={(e) => update("prefix", e.target.value)}
             placeholder="e.g. blog"
-            className="w-full rounded-md border border-pale bg-snow px-3 py-2 text-sm text-carbon focus:border-slate focus:outline-none focus:ring-1 focus:ring-slate"
+            className={inputClass}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-iron mb-1">
+          <label className="block text-xs font-medium text-dim mb-1">
             {t("suffix", lang)}
           </label>
           <input
@@ -92,13 +97,13 @@ export function SettingsPanel({
             value={settings.suffix}
             onChange={(e) => update("suffix", e.target.value)}
             placeholder="e.g. hero"
-            className="w-full rounded-md border border-pale bg-snow px-3 py-2 text-sm text-carbon focus:border-slate focus:outline-none focus:ring-1 focus:ring-slate"
+            className={inputClass}
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-iron mb-1">
+        <label className="block text-xs font-medium text-dim mb-1">
           {t("separator", lang)}
         </label>
         <input
@@ -106,41 +111,40 @@ export function SettingsPanel({
           value={settings.separator}
           onChange={(e) => update("separator", e.target.value)}
           maxLength={3}
-          className="w-20 rounded-md border border-pale bg-snow px-3 py-2 text-sm text-carbon text-center focus:border-slate focus:outline-none focus:ring-1 focus:ring-slate"
+          className={`${inputClass} w-20 text-center`}
         />
       </div>
 
-      <hr className="border-alabaster" />
+      <hr className="border-elevated" />
 
       {/* Action steps */}
-      <div className="rounded-lg border border-pale overflow-hidden">
+      <div className="rounded-lg border border-raised overflow-hidden">
         {/* Step 1: Process */}
         <button
           onClick={onProcessAll}
           disabled={isProcessing || !apiKeyConfigured || imageCount === 0}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-snow text-left hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:hover:bg-snow disabled:hover:shadow-none disabled:cursor-not-allowed transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-iron text-snow text-xs font-semibold flex items-center justify-center">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-warm-dim text-deep text-xs font-semibold flex items-center justify-center">
             1
           </span>
-          <span className="text-sm font-medium text-carbon">
+          <span className="text-sm font-medium text-cream">
             {isProcessing ? t("processing", lang) : imageCount > 0 ? `${t("processAll", lang)} (${imageCount})` : t("processAll", lang)}
           </span>
         </button>
 
-        {/* Divider */}
-        <div className="border-t border-pale" />
+        <div className="border-t border-raised" />
 
         {/* Step 2: Export */}
         <button
           onClick={onExportAll}
           disabled={isProcessing || processedCount === 0}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-snow text-left hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:hover:bg-snow disabled:hover:shadow-none disabled:cursor-not-allowed transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-iron text-snow text-xs font-semibold flex items-center justify-center">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-warm-dim text-deep text-xs font-semibold flex items-center justify-center">
             2
           </span>
-          <span className="text-sm font-medium text-carbon">
+          <span className="text-sm font-medium text-cream">
             {processedCount > 0 ? `${t("exportAllProcessed", lang)} (${processedCount})` : t("exportAllProcessed", lang)}
           </span>
         </button>
@@ -150,7 +154,7 @@ export function SettingsPanel({
         <button
           onClick={onReset}
           disabled={isProcessing}
-          className="w-full rounded-md px-4 py-2 text-sm font-medium text-slate bg-snow border border-pale hover:bg-alabaster hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="w-full rounded-md px-4 py-2 text-sm font-medium text-fog bg-elevated border border-raised hover:bg-raised hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           {t("reset", lang)}
         </button>

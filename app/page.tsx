@@ -57,7 +57,6 @@ function compressImage(
   return new Promise((resolve) => {
     const mediaType = getMediaType(file);
 
-    // GIFs can't be reliably drawn to canvas (animation), skip compression
     if (mediaType === "image/gif") {
       const reader = new FileReader();
       reader.onload = () => resolve({ dataUrl: reader.result as string, mediaType });
@@ -71,7 +70,6 @@ function compressImage(
       URL.revokeObjectURL(objectUrl);
       let { width, height } = img;
 
-      // Only resize if exceeding max dimension
       if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
         const scale = MAX_DIMENSION / Math.max(width, height);
         width = Math.round(width * scale);
@@ -98,6 +96,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
+  const [toolOpen, setToolOpen] = useState(false);
 
   const imagesRef = useRef(images);
   imagesRef.current = images;
@@ -105,20 +104,15 @@ export default function Home() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  const toolRef = useRef<HTMLDivElement>(null);
-
-  // Load settings from localStorage and check API key on mount
   useEffect(() => {
     setSettings(loadSettings());
     checkApiKey().then((result) => setApiKeyConfigured(result.configured));
   }, []);
 
-  // Persist settings to localStorage
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  // Clean up blob URLs when component unmounts
   useEffect(() => {
     return () => {
       imagesRef.current.forEach((img) => {
@@ -127,9 +121,17 @@ export default function Home() {
     };
   }, []);
 
-  const scrollToTool = useCallback(() => {
-    toolRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  // Lock body scroll when overlay is open
+  useEffect(() => {
+    if (toolOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [toolOpen]);
 
   const handleFilesSelected = useCallback((files: File[]) => {
     const promises = files.map(async (file): Promise<ImageItem> => {
@@ -278,89 +280,83 @@ export default function Home() {
   ).length;
 
   return (
-    <main>
-      {/* Hero */}
-      <HeroSection onScrollToTool={scrollToTool} />
+    <main className="h-screen overflow-hidden">
+      {/* Hero — always visible behind overlay */}
+      <HeroSection onScrollToTool={() => setToolOpen(true)} />
 
-      {/* How it works */}
-      <section className="bg-snow py-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2
-            className="font-display font-light text-carbon leading-tight mb-5"
-            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)" }}
-          >
-            Built for content teams
-            <br />
-            <span className="text-slate italic">who care about SEO</span>
-          </h2>
-          <p className="text-slate text-base leading-relaxed font-light max-w-lg mx-auto mb-4">
-            Every image on your website needs a descriptive filename, proper alt text,
-            and rich metadata to rank in search engines and remain accessible.
-            Doing this manually for hundreds of images is tedious and error-prone.
-          </p>
-          <p className="text-slate text-base leading-relaxed font-light max-w-lg mx-auto">
-            This tool uses Claude&apos;s vision AI to analyze each image and generate
-            all the metadata you need in seconds. Choose your language, set a naming
-            convention, and export everything as a clean ZIP with markdown sidecar files.
-          </p>
-        </div>
-      </section>
-
-      {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-pale to-transparent" />
-
-      {/* Tool */}
-      <section ref={toolRef} className="tool-section bg-snow">
-        <div className="flex h-[80vh] border-t border-pale">
-          <SettingsPanel
-            settings={settings}
-            onSettingsChange={setSettings}
-            onProcessAll={handleProcessAll}
-            onExportAll={handleExportAll}
-            onReset={handleReset}
-            isProcessing={isProcessing}
-            imageCount={images.length}
-            processedCount={processedCount}
-            apiKeyConfigured={apiKeyConfigured}
+      {/* Tool overlay */}
+      {toolOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col">
+          {/* Backdrop */}
+          <div
+            className="overlay-backdrop absolute inset-0 bg-deep/95 backdrop-blur-sm"
+            onClick={() => setToolOpen(false)}
           />
 
-          <ImageGrid
-            images={images}
-            selectedId={selectedId}
-            onSelectImage={setSelectedId}
-            onRemoveImage={handleRemoveImage}
-            onFilesSelected={handleFilesSelected}
-            language={settings.language}
-          />
+          {/* Panel */}
+          <div className="overlay-panel relative z-10 flex flex-col m-4 mt-6 mb-4 rounded-xl border border-elevated bg-surface overflow-hidden shadow-2xl shadow-black/40 flex-1">
+            {/* Header bar */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-elevated bg-surface/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <h2 className="font-display font-light text-cream text-lg">
+                  Image Processor
+                </h2>
+                <span className="text-[10px] text-dim tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-raised">
+                  AI Vision
+                </span>
+              </div>
+              <button
+                onClick={() => setToolOpen(false)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+              >
+                <span>Close</span>
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M1 1l12 12M13 1L1 13" />
+                </svg>
+              </button>
+            </div>
 
-          {selectedImage && (
-            <ImageDetail
-              image={selectedImage}
-              prefix={settings.prefix}
-              suffix={settings.suffix}
-              separator={settings.separator}
-              onUpdateAnalysis={handleUpdateAnalysis}
-              onProcess={handleProcessSingle}
-              onExport={() => handleExportAll()}
-              onClose={() => setSelectedId(null)}
-              isProcessing={isProcessing}
-              language={settings.language}
-            />
-          )}
-        </div>
-      </section>
+            {/* Tool body */}
+            <div className="flex flex-1 overflow-hidden">
+              <SettingsPanel
+                settings={settings}
+                onSettingsChange={setSettings}
+                onProcessAll={handleProcessAll}
+                onExportAll={handleExportAll}
+                onReset={handleReset}
+                isProcessing={isProcessing}
+                imageCount={images.length}
+                processedCount={processedCount}
+                apiKeyConfigured={apiKeyConfigured}
+              />
 
-      {/* Footer */}
-      <footer className="bg-deep py-10 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="font-display font-light text-cream/60 text-lg mb-2">
-            Image Processor
-          </p>
-          <p className="text-fog/40 text-xs tracking-wide">
-            Powered by Claude Vision AI
-          </p>
+              <ImageGrid
+                images={images}
+                selectedId={selectedId}
+                onSelectImage={setSelectedId}
+                onRemoveImage={handleRemoveImage}
+                onFilesSelected={handleFilesSelected}
+                language={settings.language}
+              />
+
+              {selectedImage && (
+                <ImageDetail
+                  image={selectedImage}
+                  prefix={settings.prefix}
+                  suffix={settings.suffix}
+                  separator={settings.separator}
+                  onUpdateAnalysis={handleUpdateAnalysis}
+                  onProcess={handleProcessSingle}
+                  onExport={() => handleExportAll()}
+                  onClose={() => setSelectedId(null)}
+                  isProcessing={isProcessing}
+                  language={settings.language}
+                />
+              )}
+            </div>
+          </div>
         </div>
-      </footer>
+      )}
     </main>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { HeroSection } from "@/components/hero-section";
 import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
@@ -23,7 +24,6 @@ function loadSettings(): AppSettings {
     const stored = localStorage.getItem(SETTINGS_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Migrate: remove old fields that no longer exist
       return {
         language: parsed.language || DEFAULT_SETTINGS.language,
         prefix: parsed.prefix || DEFAULT_SETTINGS.prefix,
@@ -84,7 +84,6 @@ function compressImage(
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Use webp for best compression, fall back to jpeg
       const outputType = "image/webp";
       const dataUrl = canvas.toDataURL(outputType, 0.85);
       resolve({ dataUrl, mediaType: "image/webp" });
@@ -106,6 +105,8 @@ export default function Home() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
+  const toolRef = useRef<HTMLDivElement>(null);
+
   // Load settings from localStorage and check API key on mount
   useEffect(() => {
     setSettings(loadSettings());
@@ -124,6 +125,10 @@ export default function Home() {
         if (img.thumbnailUrl) URL.revokeObjectURL(img.thumbnailUrl);
       });
     };
+  }, []);
+
+  const scrollToTool = useCallback(() => {
+    toolRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   const handleFilesSelected = useCallback((files: File[]) => {
@@ -215,7 +220,6 @@ export default function Home() {
       separator: s.separator,
     });
 
-    // Mark all as exported
     setImages((prev) =>
       prev.map((img) =>
         img.status === "done" && img.analysis
@@ -274,42 +278,89 @@ export default function Home() {
   ).length;
 
   return (
-    <div className="flex h-screen bg-snow">
-      <SettingsPanel
-        settings={settings}
-        onSettingsChange={setSettings}
-        onProcessAll={handleProcessAll}
-        onExportAll={handleExportAll}
-        onReset={handleReset}
-        isProcessing={isProcessing}
-        imageCount={images.length}
-        processedCount={processedCount}
-        apiKeyConfigured={apiKeyConfigured}
-      />
+    <main>
+      {/* Hero */}
+      <HeroSection onScrollToTool={scrollToTool} />
 
-      <ImageGrid
-        images={images}
-        selectedId={selectedId}
-        onSelectImage={setSelectedId}
-        onRemoveImage={handleRemoveImage}
-        onFilesSelected={handleFilesSelected}
-        language={settings.language}
-      />
+      {/* How it works */}
+      <section className="bg-snow py-20 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2
+            className="font-display font-light text-carbon leading-tight mb-5"
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)" }}
+          >
+            Built for content teams
+            <br />
+            <span className="text-slate italic">who care about SEO</span>
+          </h2>
+          <p className="text-slate text-base leading-relaxed font-light max-w-lg mx-auto mb-4">
+            Every image on your website needs a descriptive filename, proper alt text,
+            and rich metadata to rank in search engines and remain accessible.
+            Doing this manually for hundreds of images is tedious and error-prone.
+          </p>
+          <p className="text-slate text-base leading-relaxed font-light max-w-lg mx-auto">
+            This tool uses Claude&apos;s vision AI to analyze each image and generate
+            all the metadata you need in seconds. Choose your language, set a naming
+            convention, and export everything as a clean ZIP with markdown sidecar files.
+          </p>
+        </div>
+      </section>
 
-      {selectedImage && (
-        <ImageDetail
-          image={selectedImage}
-          prefix={settings.prefix}
-          suffix={settings.suffix}
-          separator={settings.separator}
-          onUpdateAnalysis={handleUpdateAnalysis}
-          onProcess={handleProcessSingle}
-          onExport={() => handleExportAll()}
-          onClose={() => setSelectedId(null)}
-          isProcessing={isProcessing}
-          language={settings.language}
-        />
-      )}
-    </div>
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-pale to-transparent" />
+
+      {/* Tool */}
+      <section ref={toolRef} className="tool-section bg-snow">
+        <div className="flex h-[80vh] border-t border-pale">
+          <SettingsPanel
+            settings={settings}
+            onSettingsChange={setSettings}
+            onProcessAll={handleProcessAll}
+            onExportAll={handleExportAll}
+            onReset={handleReset}
+            isProcessing={isProcessing}
+            imageCount={images.length}
+            processedCount={processedCount}
+            apiKeyConfigured={apiKeyConfigured}
+          />
+
+          <ImageGrid
+            images={images}
+            selectedId={selectedId}
+            onSelectImage={setSelectedId}
+            onRemoveImage={handleRemoveImage}
+            onFilesSelected={handleFilesSelected}
+            language={settings.language}
+          />
+
+          {selectedImage && (
+            <ImageDetail
+              image={selectedImage}
+              prefix={settings.prefix}
+              suffix={settings.suffix}
+              separator={settings.separator}
+              onUpdateAnalysis={handleUpdateAnalysis}
+              onProcess={handleProcessSingle}
+              onExport={() => handleExportAll()}
+              onClose={() => setSelectedId(null)}
+              isProcessing={isProcessing}
+              language={settings.language}
+            />
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-deep py-10 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="font-display font-light text-cream/60 text-lg mb-2">
+            Image Processor
+          </p>
+          <p className="text-fog/40 text-xs tracking-wide">
+            Powered by Claude Vision AI
+          </p>
+        </div>
+      </footer>
+    </main>
   );
 }

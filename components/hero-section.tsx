@@ -273,20 +273,43 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           className="animate-fade-up flex flex-wrap items-center justify-center gap-2 mb-8"
           style={{ animationDelay: "0.8s" }}
         >
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => onLanguageChange(l.code as Language)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                language === l.code
-                  ? "bg-elevated text-cream border-warm-dim/40"
-                  : "bg-transparent text-fog border-raised hover:bg-elevated hover:text-cream"
-              }`}
-            >
-              <span>{l.flag}</span>
-              <span>{l.name}</span>
-            </button>
-          ))}
+          {LANGUAGES.map((l) => {
+            const isSelected = language === l.code;
+            return (
+              <button
+                key={l.code}
+                onClick={() => onLanguageChange(l.code as Language)}
+                className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
+                  isSelected
+                    ? "text-white border-white/20 shadow-sm"
+                    : "bg-transparent text-dim border-raised opacity-50 hover:opacity-100"
+                }`}
+                style={
+                  isSelected
+                    ? { background: l.gradient }
+                    : undefined
+                }
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = l.gradient;
+                    e.currentTarget.style.opacity = "0.5";
+                    e.currentTarget.style.color = "white";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.opacity = "";
+                    e.currentTarget.style.color = "";
+                    e.currentTarget.style.borderColor = "";
+                  }
+                }}
+              >
+                {l.name}
+              </button>
+            );
+          })}
         </div>
 
         {/* CTA */}

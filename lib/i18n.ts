@@ -1,11 +1,11 @@
 export type Language = "en" | "no" | "de" | "es" | "ko";
 
-export const LANGUAGES: { code: Language; flag: string; name: string }[] = [
-  { code: "en", flag: "\u{1F1EC}\u{1F1E7}", name: "English" },
-  { code: "no", flag: "\u{1F1F3}\u{1F1F4}", name: "Norsk" },
-  { code: "de", flag: "\u{1F1E9}\u{1F1EA}", name: "Deutsch" },
-  { code: "es", flag: "\u{1F1EA}\u{1F1F8}", name: "Español" },
-  { code: "ko", flag: "\u{1F1F0}\u{1F1F7}", name: "한국어" },
+export const LANGUAGES: { code: Language; name: string; gradient: string }[] = [
+  { code: "en", name: "English", gradient: "linear-gradient(135deg, #012169 0%, #C8102E 50%, #012169 100%)" },
+  { code: "no", name: "Norsk", gradient: "linear-gradient(135deg, #EF2B2D 0%, #002868 50%, #EF2B2D 100%)" },
+  { code: "de", name: "Deutsch", gradient: "linear-gradient(135deg, #000000 0%, #DD0000 50%, #FFCC00 100%)" },
+  { code: "es", name: "Español", gradient: "linear-gradient(135deg, #AA151B 0%, #F1BF00 50%, #AA151B 100%)" },
+  { code: "ko", name: "한국어", gradient: "linear-gradient(135deg, #003478 0%, #C60C30 50%, #003478 100%)" },
 ];
 
 const translations: Record<Language, Record<string, string>> = {

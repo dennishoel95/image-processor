@@ -51,20 +51,43 @@ export function SettingsPanel({
           {t("language", lang)}
         </label>
         <div className="flex flex-wrap gap-1.5">
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => onSettingsChange({ ...settings, language: l.code as Language })}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                settings.language === l.code
-                  ? "bg-elevated text-cream border-warm-dim/40"
-                  : "bg-surface text-fog border-raised hover:bg-elevated hover:text-cream"
-              }`}
-            >
-              <span>{l.flag}</span>
-              <span>{l.name}</span>
-            </button>
-          ))}
+          {LANGUAGES.map((l) => {
+            const isSelected = settings.language === l.code;
+            return (
+              <button
+                key={l.code}
+                onClick={() => onSettingsChange({ ...settings, language: l.code as Language })}
+                className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
+                  isSelected
+                    ? "text-white border-white/20 shadow-sm"
+                    : "bg-surface text-dim border-raised opacity-50 hover:opacity-100"
+                }`}
+                style={
+                  isSelected
+                    ? { background: l.gradient }
+                    : undefined
+                }
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = l.gradient;
+                    e.currentTarget.style.opacity = "0.5";
+                    e.currentTarget.style.color = "white";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.opacity = "";
+                    e.currentTarget.style.color = "";
+                    e.currentTarget.style.borderColor = "";
+                  }
+                }}
+              >
+                {l.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 

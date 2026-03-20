@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 const robotoHeading = Roboto({subsets:['latin'],variable:'--font-heading'});
 
@@ -41,14 +42,14 @@ export default function RootLayout({
               <ThemeToggle />
               <Show when="signed-out">
                 <SignInButton>
-                  <button className="px-4 py-2 text-sm font-medium text-foreground border border-primary/40 rounded-full hover:bg-primary/10 hover:border-primary/70 transition-all duration-300">
+                  <Button variant="outline" className="rounded-full">
                     Sign in
-                  </button>
+                  </Button>
                 </SignInButton>
                 <SignUpButton>
-                  <button className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-full hover:bg-primary/80 transition-all duration-300">
+                  <Button className="rounded-full">
                     Sign up
-                  </button>
+                  </Button>
                 </SignUpButton>
               </Show>
               <Show when="signed-in">

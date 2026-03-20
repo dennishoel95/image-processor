@@ -2,6 +2,8 @@
 
 import { ImageItem } from "@/lib/types";
 import { t, type Language } from "@/lib/i18n";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface ImageCardProps {
   image: ImageItem;
@@ -53,25 +55,25 @@ export function ImageCard({
           alt={image.analysis?.altText || image.originalFileName}
           className="w-full h-full object-cover"
         />
-        {/* Status */}
-        <span className="absolute top-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/80 text-foreground backdrop-blur-sm border border-border">
+        <Badge variant="secondary" className="absolute top-2 left-2 text-[10px] backdrop-blur-sm">
           {t(image.status, language)}
-        </span>
+        </Badge>
         {image.exported && (
-          <span className="absolute bottom-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/80 text-primary backdrop-blur-sm border border-border">
+          <Badge className="absolute bottom-2 left-2 text-[10px] backdrop-blur-sm">
             {t("exported", language)}
-          </span>
+          </Badge>
         )}
-        {/* Remove button */}
-        <button
+        <Button
+          variant="destructive"
+          size="xs"
           onClick={(e) => {
             e.stopPropagation();
             onRemove(image.id);
           }}
-          className="absolute top-2 right-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/90 text-foreground border border-border opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all"
+          className="absolute top-2 right-2 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
         >
           {t("remove", language)}
-        </button>
+        </Button>
       </div>
       <div className="p-2 bg-card">
         <p className="text-xs text-muted-foreground truncate">{image.originalFileName}</p>

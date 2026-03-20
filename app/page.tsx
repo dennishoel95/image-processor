@@ -8,6 +8,8 @@ import { ImageDetail } from "@/components/image-detail";
 import { processImage, checkApiKey } from "./actions";
 import { exportAsZip, exportAsCsv } from "@/lib/export";
 import type { ImageItem, AppSettings } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const SETTINGS_KEY = "image-processor-settings";
 
@@ -345,7 +347,7 @@ export default function Home() {
 
       {/* Tool overlay */}
       {toolOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col">
+        <div className="fixed inset-0 z-[200] flex flex-col">
           {/* Backdrop */}
           <div
             className="overlay-backdrop absolute inset-0 bg-background/95 backdrop-blur-sm"
@@ -360,30 +362,33 @@ export default function Home() {
                 <h2 className="font-display font-light text-foreground text-base md:text-lg">
                   Image Processor
                 </h2>
-                <span className="hidden sm:inline text-[10px] text-muted-foreground tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-border">
+                <Badge variant="outline" className="hidden sm:inline-flex text-[10px] tracking-wider uppercase">
                   AI Vision
-                </span>
+                </Badge>
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setToolOpen(false)}
-                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+                  className="hidden md:inline-flex"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
                   </svg>
-                  <span>About</span>
-                </button>
-                <button
+                  About
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setToolOpen(false)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
                 >
-                  <span>Close</span>
+                  Close
                   <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M1 1l12 12M13 1L1 13" />
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
 

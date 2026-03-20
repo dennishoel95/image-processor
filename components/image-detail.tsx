@@ -2,6 +2,11 @@
 
 import { ImageItem } from "@/lib/types";
 import { t, type Language } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 interface ImageDetailProps {
   image: ImageItem;
@@ -71,25 +76,22 @@ export function ImageDetail({
     ? buildPreviewName(prefix, analysis.descriptiveName, suffix, separator, ext)
     : null;
 
-  const inputClass =
-    "w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
-  const labelClass = "block text-xs font-medium text-muted-foreground mb-1";
-
   return (
     <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-border bg-card p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-muted-foreground tracking-[0.15em] uppercase">
           {t("imageDetails", language)}
         </h2>
-        <button
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={onClose}
-          className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
           aria-label="Close"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M1 1l12 12M13 1L1 13" />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {/* Preview */}
@@ -112,19 +114,19 @@ export function ImageDetail({
       </div>
 
       {image.status === "error" && (
-        <div className="rounded-md bg-accent p-3 text-sm text-muted-foreground border border-border">
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
           {image.error}
         </div>
       )}
 
       {!analysis && image.status !== "processing" && (
-        <button
+        <Button
           onClick={() => onProcess(image.id)}
           disabled={isProcessing}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-full"
         >
           {t("analyzeAi", language)}
-        </button>
+        </Button>
       )}
 
       {image.status === "processing" && (
@@ -137,62 +139,55 @@ export function ImageDetail({
         <>
           {/* Descriptive Name */}
           <div>
-            <label className={labelClass}>{t("descriptiveName", language)}</label>
-            <input
-              type="text"
+            <Label className="text-xs text-muted-foreground mb-1">{t("descriptiveName", language)}</Label>
+            <Input
               value={analysis.descriptiveName}
               onChange={(e) => onUpdateAnalysis(image.id, "descriptiveName", e.target.value)}
-              className={inputClass}
             />
           </div>
 
           {/* Title */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-muted-foreground">{t("title", language)}</label>
+              <Label className="text-xs text-muted-foreground">{t("title", language)}</Label>
               <CharCount value={analysis.title} max={100} warn={90} />
             </div>
-            <input
-              type="text"
+            <Input
               value={analysis.title}
               onChange={(e) => onUpdateAnalysis(image.id, "title", e.target.value)}
-              className={inputClass}
             />
           </div>
 
           {/* Alt Text */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-muted-foreground">{t("altText", language)}</label>
+              <Label className="text-xs text-muted-foreground">{t("altText", language)}</Label>
               <CharCount value={analysis.altText} max={125} warn={110} />
             </div>
-            <textarea
+            <Textarea
               value={analysis.altText}
               onChange={(e) => onUpdateAnalysis(image.id, "altText", e.target.value)}
               rows={2}
-              className={inputClass}
             />
           </div>
 
           {/* Description */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-muted-foreground">{t("description", language)}</label>
+              <Label className="text-xs text-muted-foreground">{t("description", language)}</Label>
               <CharCount value={analysis.metaDescription} max={160} warn={145} />
             </div>
-            <textarea
+            <Textarea
               value={analysis.metaDescription}
               onChange={(e) => onUpdateAnalysis(image.id, "metaDescription", e.target.value)}
               rows={3}
-              className={inputClass}
             />
           </div>
 
           {/* Keywords */}
           <div>
-            <label className={labelClass}>{t("keywords", language)}</label>
-            <input
-              type="text"
+            <Label className="text-xs text-muted-foreground mb-1">{t("keywords", language)}</Label>
+            <Input
               value={analysis.keywords.join(", ")}
               onChange={(e) =>
                 onUpdateAnalysis(
@@ -201,7 +196,6 @@ export function ImageDetail({
                   e.target.value.split(",").map((k) => k.trim()).filter(Boolean)
                 )
               }
-              className={inputClass}
             />
           </div>
 
@@ -210,47 +204,41 @@ export function ImageDetail({
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("location", language)}</p>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-muted-foreground mb-0.5">{t("locationName", language)}</label>
-                <input
-                  type="text"
+                <Label className="text-xs text-muted-foreground mb-0.5">{t("locationName", language)}</Label>
+                <Input
                   value={analysis.locationName}
                   onChange={(e) => onUpdateAnalysis(image.id, "locationName", e.target.value)}
-                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-0.5">{t("city", language)}</label>
-                <input
-                  type="text"
+                <Label className="text-xs text-muted-foreground mb-0.5">{t("city", language)}</Label>
+                <Input
                   value={analysis.city}
                   onChange={(e) => onUpdateAnalysis(image.id, "city", e.target.value)}
-                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-0.5">{t("stateProvince", language)}</label>
-                <input
-                  type="text"
+                <Label className="text-xs text-muted-foreground mb-0.5">{t("stateProvince", language)}</Label>
+                <Input
                   value={analysis.stateProvince}
                   onChange={(e) => onUpdateAnalysis(image.id, "stateProvince", e.target.value)}
-                  className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs text-muted-foreground mb-0.5">{t("country", language)}</label>
-                <input
-                  type="text"
+                <Label className="text-xs text-muted-foreground mb-0.5">{t("country", language)}</Label>
+                <Input
                   value={analysis.country}
                   onChange={(e) => onUpdateAnalysis(image.id, "country", e.target.value)}
-                  className={inputClass}
                 />
               </div>
             </div>
           </div>
 
+          <Separator />
+
           {/* Metadata preview */}
           <div>
-            <label className={labelClass}>{t("mdPreview", language)}</label>
+            <Label className="text-xs text-muted-foreground mb-1">{t("mdPreview", language)}</Label>
             <pre className="rounded-md bg-background p-3 text-xs text-muted-foreground whitespace-pre-wrap overflow-x-auto border border-border">
 {`# ${previewName}
 
@@ -280,13 +268,14 @@ ${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.countr
             </pre>
           </div>
 
-          <button
+          <Button
+            variant="outline"
             onClick={() => onExport(image.id)}
             disabled={image.exported}
-            className="w-full rounded-md bg-accent border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="w-full"
           >
             {image.exported ? t("exported", language) : t("exportImage", language)}
-          </button>
+          </Button>
         </>
       )}
     </div>

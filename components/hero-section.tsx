@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { LANGUAGES, type Language } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Particle {
   x: number;
@@ -76,7 +78,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
       });
     }
 
-    // Cap at 80 motes
     if (motesRef.current.length > 80) {
       motesRef.current = motesRef.current.slice(-80);
     }
@@ -127,7 +128,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
         m.vy *= 0.98;
 
         const progress = m.life / m.maxLife;
-        // Fade in quickly, fade out slowly
         const alpha = progress < 0.15
           ? (progress / 0.15) * m.opacity
           : m.opacity * (1 - (progress - 0.15) / 0.85);
@@ -199,7 +199,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
 
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-        {/* Eyebrow */}
         <p
           className="animate-fade-up text-muted-foreground tracking-[0.3em] uppercase text-xs font-body font-medium mb-8"
           style={{ animationDelay: "0.1s" }}
@@ -207,7 +206,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           AI-Powered Image Processing
         </p>
 
-        {/* H1 */}
         <h1
           className="animate-fade-up font-display font-light text-foreground leading-[1.1] mb-6"
           style={{
@@ -220,7 +218,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           <span className="text-primary italic">with intelligence</span>
         </h1>
 
-        {/* Preamble */}
         <p
           className="animate-fade-up text-muted-foreground text-lg leading-relaxed max-w-xl mx-auto mb-12 font-light"
           style={{ animationDelay: "0.45s" }}
@@ -229,7 +226,6 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           for your entire image library — powered by Claude vision AI.
         </p>
 
-        {/* Shimmer divider */}
         <div
           className="animate-fade-up shimmer-line max-w-xs mx-auto mb-12"
           style={{ animationDelay: "0.6s" }}
@@ -274,26 +270,25 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           style={{ animationDelay: "0.8s" }}
         >
           {LANGUAGES.map((l) => (
-            <button
+            <Badge
               key={l.code}
+              variant={language === l.code ? "default" : "outline"}
+              className="cursor-pointer gap-1.5 px-3 py-1.5 h-auto"
               onClick={() => onLanguageChange(l.code as Language)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                language === l.code
-                  ? "bg-accent text-foreground border-primary/40"
-                  : "bg-transparent text-muted-foreground border-border hover:bg-accent hover:text-foreground"
-              }`}
             >
               <span>{l.flag}</span>
               <span>{l.name}</span>
-            </button>
+            </Badge>
           ))}
         </div>
 
         {/* CTA */}
         <div className="animate-fade-up" style={{ animationDelay: "0.9s" }}>
-          <button
+          <Button
+            variant="outline"
+            size="lg"
             onClick={onScrollToTool}
-            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-primary/40 text-foreground font-body font-medium text-sm tracking-wide transition-all duration-300 hover:bg-primary/10 hover:border-primary/70 hover:shadow-[0_0_30px_oklch(0.508_0.118_165.612/0.12)]"
+            className="group rounded-full px-8 py-3.5 h-auto border-primary/40 font-body tracking-wide hover:bg-primary/10 hover:border-primary/70"
           >
             Start Processing
             <svg
@@ -305,7 +300,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 

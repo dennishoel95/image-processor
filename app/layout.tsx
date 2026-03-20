@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import { Cormorant_Garamond, Outfit, Inter, Roboto } from "next/font/google";
 import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const robotoHeading = Roboto({subsets:['latin'],variable:'--font-heading'});
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const displayFont = Cormorant_Garamond({
   variable: "--font-display",
@@ -26,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", inter.variable, robotoHeading.variable)}>
       <body className={`${displayFont.variable} ${bodyFont.variable} antialiased`}>
         <ClerkProvider>
           <header className="fixed top-0 right-0 z-[100] flex items-center gap-3 p-4">

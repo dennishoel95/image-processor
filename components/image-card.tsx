@@ -43,10 +43,10 @@ export function ImageCard({
     <div
       onClick={onClick}
       className={`rounded-lg border overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:shadow-black/20 ${
-        isSelected ? "border-warm-dim shadow-lg shadow-black/20" : "border-raised"
+        isSelected ? "border-primary shadow-lg shadow-black/20" : "border-border"
       }`}
     >
-      <div className="aspect-square bg-elevated relative group">
+      <div className="aspect-square bg-accent relative group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={thumbnailUrl}
@@ -54,11 +54,11 @@ export function ImageCard({
           className="w-full h-full object-cover"
         />
         {/* Status */}
-        <span className="absolute top-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-deep/80 text-cream backdrop-blur-sm border border-elevated">
+        <span className="absolute top-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/80 text-foreground backdrop-blur-sm border border-border">
           {t(image.status, language)}
         </span>
         {image.exported && (
-          <span className="absolute bottom-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-deep/80 text-warm backdrop-blur-sm border border-elevated">
+          <span className="absolute bottom-2 left-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/80 text-primary backdrop-blur-sm border border-border">
             {t("exported", language)}
           </span>
         )}
@@ -68,20 +68,20 @@ export function ImageCard({
             e.stopPropagation();
             onRemove(image.id);
           }}
-          className="absolute top-2 right-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-deep/90 text-cream border border-elevated opacity-0 group-hover:opacity-100 hover:bg-black transition-all"
+          className="absolute top-2 right-2 text-[10px] px-2.5 py-1 rounded-full font-medium bg-background/90 text-foreground border border-border opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all"
         >
           {t("remove", language)}
         </button>
       </div>
-      <div className="p-2 bg-surface">
-        <p className="text-xs text-dim truncate">{image.originalFileName}</p>
+      <div className="p-2 bg-card">
+        <p className="text-xs text-muted-foreground truncate">{image.originalFileName}</p>
         {image.analysis && (
-          <p className="text-sm font-medium text-cream truncate mt-0.5">
+          <p className="text-sm font-medium text-foreground truncate mt-0.5">
             {buildPreviewName(prefix, image.analysis.descriptiveName, suffix, separator)}
           </p>
         )}
         {image.status === "error" && image.error && (
-          <p className="text-xs text-fog mt-0.5 line-clamp-2">
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
             {image.error}
           </p>
         )}

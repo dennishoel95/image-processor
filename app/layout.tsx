@@ -41,12 +41,12 @@ export default function RootLayout({
               <ThemeToggle />
               <Show when="signed-out">
                 <SignInButton>
-                  <button className="px-4 py-2 text-sm font-medium text-cream border border-warm/40 rounded-full hover:bg-warm/10 hover:border-warm/70 transition-all duration-300">
+                  <button className="px-4 py-2 text-sm font-medium text-foreground border border-primary/40 rounded-full hover:bg-primary/10 hover:border-primary/70 transition-all duration-300">
                     Sign in
                   </button>
                 </SignInButton>
                 <SignUpButton>
-                  <button className="px-4 py-2 text-sm font-medium text-deep bg-warm rounded-full hover:bg-warm-dim transition-all duration-300">
+                  <button className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-full hover:bg-primary/80 transition-all duration-300">
                     Sign up
                   </button>
                 </SignUpButton>

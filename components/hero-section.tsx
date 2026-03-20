@@ -141,7 +141,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
 
         ctx.beginPath();
         ctx.arc(m.x, m.y, m.size * shrink, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(197, 163, 100, ${alpha})`;
+        ctx.fillStyle = `oklch(0.508 0.118 165.612 / ${alpha})`;
         ctx.fill();
       }
 
@@ -162,14 +162,14 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-deep"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background"
     >
       {/* Gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(197,163,100,0.06) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(148,145,139,0.04) 0%, transparent 60%)",
+            "radial-gradient(ellipse 80% 60% at 50% 40%, oklch(0.508 0.118 165.612 / 0.06) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 20% 80%, oklch(0.56 0.021 213.5 / 0.04) 0%, transparent 60%)",
         }}
       />
 
@@ -184,7 +184,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
               top: `${p.y}%`,
               width: `${p.size}px`,
               height: `${p.size}px`,
-              backgroundColor: `rgba(197, 163, 100, ${p.opacity})`,
+              backgroundColor: `oklch(0.508 0.118 165.612 / ${p.opacity})`,
               animation: `${i % 2 === 0 ? "float-up" : "float-drift"} ${p.duration}s ${p.delay}s ease-in-out infinite`,
             }}
           />
@@ -201,7 +201,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
         {/* Eyebrow */}
         <p
-          className="animate-fade-up text-fog tracking-[0.3em] uppercase text-xs font-body font-medium mb-8"
+          className="animate-fade-up text-muted-foreground tracking-[0.3em] uppercase text-xs font-body font-medium mb-8"
           style={{ animationDelay: "0.1s" }}
         >
           AI-Powered Image Processing
@@ -209,7 +209,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
 
         {/* H1 */}
         <h1
-          className="animate-fade-up font-display font-light text-cream leading-[1.1] mb-6"
+          className="animate-fade-up font-display font-light text-foreground leading-[1.1] mb-6"
           style={{
             fontSize: "clamp(2.8rem, 6vw, 5rem)",
             animationDelay: "0.25s",
@@ -217,12 +217,12 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
         >
           Transform your images
           <br />
-          <span className="text-warm italic">with intelligence</span>
+          <span className="text-primary italic">with intelligence</span>
         </h1>
 
         {/* Preamble */}
         <p
-          className="animate-fade-up text-fog text-lg leading-relaxed max-w-xl mx-auto mb-12 font-light"
+          className="animate-fade-up text-muted-foreground text-lg leading-relaxed max-w-xl mx-auto mb-12 font-light"
           style={{ animationDelay: "0.45s" }}
         >
           Generate SEO-optimized filenames, alt text, titles, and rich metadata
@@ -256,12 +256,12 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
           ].map((card, i) => (
             <div
               key={i}
-              className="px-6 py-5 text-left border-l border-elevated first:border-l-0 md:first:border-l-0"
+              className="px-6 py-5 text-left border-l border-border first:border-l-0 md:first:border-l-0"
             >
-              <h3 className="text-warm-dim tracking-[0.2em] uppercase text-[11px] font-body font-semibold mb-2">
+              <h3 className="text-primary tracking-[0.2em] uppercase text-[11px] font-body font-semibold mb-2">
                 {card.title}
               </h3>
-              <p className="text-fog text-sm leading-relaxed font-light">
+              <p className="text-muted-foreground text-sm leading-relaxed font-light">
                 {card.desc}
               </p>
             </div>
@@ -279,8 +279,8 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
               onClick={() => onLanguageChange(l.code as Language)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 language === l.code
-                  ? "bg-elevated text-cream border-warm-dim/40"
-                  : "bg-transparent text-fog border-raised hover:bg-elevated hover:text-cream"
+                  ? "bg-accent text-foreground border-primary/40"
+                  : "bg-transparent text-muted-foreground border-border hover:bg-accent hover:text-foreground"
               }`}
             >
               <span>{l.flag}</span>
@@ -293,7 +293,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
         <div className="animate-fade-up" style={{ animationDelay: "0.9s" }}>
           <button
             onClick={onScrollToTool}
-            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-warm/40 text-cream font-body font-medium text-sm tracking-wide transition-all duration-300 hover:bg-warm/10 hover:border-warm/70 hover:shadow-[0_0_30px_rgba(197,163,100,0.12)]"
+            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-primary/40 text-foreground font-body font-medium text-sm tracking-wide transition-all duration-300 hover:bg-primary/10 hover:border-primary/70 hover:shadow-[0_0_30px_oklch(0.508_0.118_165.612/0.12)]"
           >
             Start Processing
             <svg
@@ -310,7 +310,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-deep to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 }

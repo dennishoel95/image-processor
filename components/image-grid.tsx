@@ -37,7 +37,7 @@ export function ImageGrid({
       />
 
       {images.length === 0 ? (
-        <div className="mt-8 text-center text-dim">
+        <div className="mt-8 text-center text-muted-foreground">
           <p>{t("noImages", language)}</p>
           <p className="text-sm mt-1">
             {t("noImagesSub", language)}
@@ -45,7 +45,7 @@ export function ImageGrid({
         </div>
       ) : (
         <>
-          <p className="mt-4 mb-3 text-sm text-fog">
+          <p className="mt-4 mb-3 text-sm text-muted-foreground">
             {images.length} {images.length !== 1 ? t("imagesFound", language) : t("imageFound", language)}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">

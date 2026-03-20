@@ -41,7 +41,7 @@ function buildPreviewName(
 
 function CharCount({ value, max, warn }: { value: string; max: number; warn: number }) {
   const len = value.length;
-  const color = len > max ? "text-red-400" : len > warn ? "text-yellow-400" : "text-dim";
+  const color = len > max ? "text-red-400" : len > warn ? "text-yellow-400" : "text-muted-foreground";
   return (
     <span className={`text-[10px] tabular-nums ${color}`}>
       {len}/{max}
@@ -72,18 +72,18 @@ export function ImageDetail({
     : null;
 
   const inputClass =
-    "w-full rounded-md border border-raised bg-surface px-3 py-2 text-sm text-cream placeholder:text-dim focus:border-warm-dim focus:outline-none focus:ring-1 focus:ring-warm-dim";
-  const labelClass = "block text-xs font-medium text-dim mb-1";
+    "w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+  const labelClass = "block text-xs font-medium text-muted-foreground mb-1";
 
   return (
-    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-elevated bg-surface p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
+    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-border bg-card p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
+        <h2 className="text-sm font-medium text-muted-foreground tracking-[0.15em] uppercase">
           {t("imageDetails", language)}
         </h2>
         <button
           onClick={onClose}
-          className="w-7 h-7 flex items-center justify-center rounded-md text-dim hover:bg-elevated hover:text-cream transition-all"
+          className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
           aria-label="Close"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -93,7 +93,7 @@ export function ImageDetail({
       </div>
 
       {/* Preview */}
-      <div className="aspect-video bg-elevated rounded-lg overflow-hidden">
+      <div className="aspect-video bg-accent rounded-lg overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image.thumbnailUrl}
@@ -103,16 +103,16 @@ export function ImageDetail({
       </div>
 
       <div>
-        <p className="text-xs text-dim">{t("original", language)}: {image.originalFileName}</p>
+        <p className="text-xs text-muted-foreground">{t("original", language)}: {image.originalFileName}</p>
         {previewName && (
-          <p className="text-sm font-medium text-cream mt-1">
+          <p className="text-sm font-medium text-foreground mt-1">
             {t("new", language)}: {previewName}
           </p>
         )}
       </div>
 
       {image.status === "error" && (
-        <div className="rounded-md bg-elevated p-3 text-sm text-fog border border-raised">
+        <div className="rounded-md bg-accent p-3 text-sm text-muted-foreground border border-border">
           {image.error}
         </div>
       )}
@@ -121,14 +121,14 @@ export function ImageDetail({
         <button
           onClick={() => onProcess(image.id)}
           disabled={isProcessing}
-          className="w-full rounded-md bg-warm-dim px-4 py-2 text-sm font-medium text-deep hover:bg-warm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           {t("analyzeAi", language)}
         </button>
       )}
 
       {image.status === "processing" && (
-        <div className="text-center text-sm text-fog py-2">
+        <div className="text-center text-sm text-muted-foreground py-2">
           {t("analyzing", language)}
         </div>
       )}
@@ -149,7 +149,7 @@ export function ImageDetail({
           {/* Title */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-dim">{t("title", language)}</label>
+              <label className="text-xs font-medium text-muted-foreground">{t("title", language)}</label>
               <CharCount value={analysis.title} max={100} warn={90} />
             </div>
             <input
@@ -163,7 +163,7 @@ export function ImageDetail({
           {/* Alt Text */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-dim">{t("altText", language)}</label>
+              <label className="text-xs font-medium text-muted-foreground">{t("altText", language)}</label>
               <CharCount value={analysis.altText} max={125} warn={110} />
             </div>
             <textarea
@@ -177,7 +177,7 @@ export function ImageDetail({
           {/* Description */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-dim">{t("description", language)}</label>
+              <label className="text-xs font-medium text-muted-foreground">{t("description", language)}</label>
               <CharCount value={analysis.metaDescription} max={160} warn={145} />
             </div>
             <textarea
@@ -206,11 +206,11 @@ export function ImageDetail({
           </div>
 
           {/* Location */}
-          <div className="rounded-md border border-raised p-3 space-y-3">
-            <p className="text-xs font-medium text-dim uppercase tracking-wider">{t("location", language)}</p>
+          <div className="rounded-md border border-border p-3 space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("location", language)}</p>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-dim mb-0.5">{t("locationName", language)}</label>
+                <label className="block text-xs text-muted-foreground mb-0.5">{t("locationName", language)}</label>
                 <input
                   type="text"
                   value={analysis.locationName}
@@ -219,7 +219,7 @@ export function ImageDetail({
                 />
               </div>
               <div>
-                <label className="block text-xs text-dim mb-0.5">{t("city", language)}</label>
+                <label className="block text-xs text-muted-foreground mb-0.5">{t("city", language)}</label>
                 <input
                   type="text"
                   value={analysis.city}
@@ -228,7 +228,7 @@ export function ImageDetail({
                 />
               </div>
               <div>
-                <label className="block text-xs text-dim mb-0.5">{t("stateProvince", language)}</label>
+                <label className="block text-xs text-muted-foreground mb-0.5">{t("stateProvince", language)}</label>
                 <input
                   type="text"
                   value={analysis.stateProvince}
@@ -237,7 +237,7 @@ export function ImageDetail({
                 />
               </div>
               <div>
-                <label className="block text-xs text-dim mb-0.5">{t("country", language)}</label>
+                <label className="block text-xs text-muted-foreground mb-0.5">{t("country", language)}</label>
                 <input
                   type="text"
                   value={analysis.country}
@@ -251,7 +251,7 @@ export function ImageDetail({
           {/* Metadata preview */}
           <div>
             <label className={labelClass}>{t("mdPreview", language)}</label>
-            <pre className="rounded-md bg-deep p-3 text-xs text-fog whitespace-pre-wrap overflow-x-auto border border-elevated">
+            <pre className="rounded-md bg-background p-3 text-xs text-muted-foreground whitespace-pre-wrap overflow-x-auto border border-border">
 {`# ${previewName}
 
 ## ${t("title", language)}
@@ -283,7 +283,7 @@ ${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.countr
           <button
             onClick={() => onExport(image.id)}
             disabled={image.exported}
-            className="w-full rounded-md bg-elevated border border-raised px-4 py-2 text-sm font-medium text-cream hover:bg-raised disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="w-full rounded-md bg-accent border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             {image.exported ? t("exported", language) : t("exportImage", language)}
           </button>

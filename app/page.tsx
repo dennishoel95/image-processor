@@ -348,26 +348,26 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex flex-col">
           {/* Backdrop */}
           <div
-            className="overlay-backdrop absolute inset-0 bg-deep/95 backdrop-blur-sm"
+            className="overlay-backdrop absolute inset-0 bg-background/95 backdrop-blur-sm"
             onClick={() => setToolOpen(false)}
           />
 
           {/* Panel */}
-          <div className="overlay-panel relative z-10 flex flex-col m-1 mt-2 mb-0 md:m-4 md:mt-6 md:mb-4 rounded-t-xl md:rounded-xl border border-elevated bg-surface overflow-hidden shadow-2xl shadow-black/40 flex-1">
+          <div className="overlay-panel relative z-10 flex flex-col m-1 mt-2 mb-0 md:m-4 md:mt-6 md:mb-4 rounded-t-xl md:rounded-xl border border-border bg-card overflow-hidden shadow-2xl shadow-black/40 flex-1">
             {/* Header bar */}
-            <div className="flex items-center justify-between px-3 py-2 md:px-5 md:py-3 border-b border-elevated bg-surface/80 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-3 py-2 md:px-5 md:py-3 border-b border-border bg-card/80 backdrop-blur-sm">
               <div className="flex items-center gap-2 md:gap-3">
-                <h2 className="font-display font-light text-cream text-base md:text-lg">
+                <h2 className="font-display font-light text-foreground text-base md:text-lg">
                   Image Processor
                 </h2>
-                <span className="hidden sm:inline text-[10px] text-dim tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-raised">
+                <span className="hidden sm:inline text-[10px] text-muted-foreground tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-border">
                   AI Vision
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setToolOpen(false)}
-                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="12" cy="12" r="10" />
@@ -377,7 +377,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => setToolOpen(false)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
                 >
                   <span>Close</span>
                   <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -444,18 +444,18 @@ export default function Home() {
 
               {/* Mobile: no image selected on details tab */}
               {!selectedImage && mobileTab === "details" && (
-                <div className="flex md:hidden flex-1 items-center justify-center text-dim text-sm">
+                <div className="flex md:hidden flex-1 items-center justify-center text-muted-foreground text-sm">
                   Select an image to view details
                 </div>
               )}
             </div>
 
             {/* Mobile tab bar */}
-            <div className="flex md:hidden border-t border-elevated bg-surface/90 backdrop-blur-sm">
+            <div className="flex md:hidden border-t border-border bg-card/90 backdrop-blur-sm">
               <button
                 onClick={() => setMobileTab("settings")}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "settings" ? "text-warm-dim" : "text-dim"
+                  mobileTab === "settings" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -467,7 +467,7 @@ export default function Home() {
               <button
                 onClick={() => setMobileTab("grid")}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "grid" ? "text-warm-dim" : "text-dim"
+                  mobileTab === "grid" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -481,7 +481,7 @@ export default function Home() {
               <button
                 onClick={() => setMobileTab("details")}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "details" ? "text-warm-dim" : "text-dim"
+                  mobileTab === "details" ? "text-primary" : "text-muted-foreground"
                 } ${selectedImage ? "" : "opacity-40"}`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">

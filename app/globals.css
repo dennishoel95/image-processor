@@ -10,27 +10,6 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
 
-  /* Legacy neutral (kept for compatibility) */
-  --color-snow: #f8f9fa;
-  --color-platinum: #e9ecef;
-  --color-alabaster: #dee2e6;
-  --color-pale: #ced4da;
-  --color-muted: #adb5bd;
-  --color-slate: #6c757d;
-  --color-iron: #495057;
-  --color-gunmetal: #343a40;
-  --color-carbon: #212529;
-
-  /* Dark palette */
-  --color-deep: #16161a;
-  --color-surface: #1e1e23;
-  --color-elevated: #27272d;
-  --color-raised: #313138;
-  --color-warm: #c5a364;
-  --color-warm-dim: #a08550;
-  --color-cream: #e8e0d0;
-  --color-fog: #94918b;
-  --color-dim: #6b6963;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -74,14 +53,6 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* Dark-themed inputs */
-input, textarea, select {
-  color: var(--color-cream);
-}
-
-input::placeholder, textarea::placeholder {
-  color: var(--color-dim);
-}
 
 /* ── Floating particles ── */
 
@@ -166,7 +137,7 @@ input::placeholder, textarea::placeholder {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--color-warm) 50%,
+    var(--primary) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -211,12 +182,12 @@ input::placeholder, textarea::placeholder {
 }
 
 .dark-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-raised);
+  background: var(--border);
   border-radius: 3px;
 }
 
 .dark-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--color-dim);
+  background: var(--muted-foreground);
 }
 
 :root {

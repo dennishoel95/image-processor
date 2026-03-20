@@ -77,8 +77,8 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
       onClick={handleClick}
       className={`border-2 border-dashed rounded-lg p-4 md:p-8 text-center transition-all cursor-pointer ${
         isDragOver
-          ? "border-warm-dim bg-elevated"
-          : "border-raised bg-surface hover:border-dim hover:bg-elevated"
+          ? "border-primary bg-accent"
+          : "border-border bg-card hover:border-muted-foreground hover:bg-accent"
       }`}
     >
       <input
@@ -91,7 +91,7 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
       />
       <div>
         <svg
-          className="mx-auto h-12 w-12 text-dim"
+          className="mx-auto h-12 w-12 text-muted-foreground"
           stroke="currentColor"
           fill="none"
           viewBox="0 0 48 48"
@@ -103,13 +103,13 @@ export function DropZone({ onFilesSelected, currentCount, language }: DropZonePr
             strokeLinejoin="round"
           />
         </svg>
-        <p className="mt-2 text-sm font-medium text-fog">
+        <p className="mt-2 text-sm font-medium text-muted-foreground">
           {t("dropImages", language)}
         </p>
-        <p className="mt-1 text-xs text-dim">
+        <p className="mt-1 text-xs text-muted-foreground">
           {t("dropSubBrowser", language)}
         </p>
-        <p className="mt-1 text-xs text-dim">
+        <p className="mt-1 text-xs text-muted-foreground">
           {currentCount}/{MAX_FILES} {t("imagesLoaded", language)}
         </p>
       </div>

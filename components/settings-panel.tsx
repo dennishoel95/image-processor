@@ -37,17 +37,17 @@ export function SettingsPanel({
   };
 
   const inputClass =
-    "w-full rounded-md border border-raised bg-surface px-3 py-2 text-sm text-cream placeholder:text-dim focus:border-warm-dim focus:outline-none focus:ring-1 focus:ring-warm-dim";
+    "w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 
   return (
-    <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-elevated bg-surface p-4 md:p-5 flex flex-col gap-4 overflow-y-auto dark-scroll">
-      <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
+    <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-border bg-card p-4 md:p-5 flex flex-col gap-4 overflow-y-auto dark-scroll">
+      <h2 className="text-sm font-medium text-muted-foreground tracking-[0.15em] uppercase">
         {t("settings", lang)}
       </h2>
 
       {/* Language selector */}
       <div>
-        <label className="block text-xs font-medium text-dim mb-2">
+        <label className="block text-xs font-medium text-muted-foreground mb-2">
           {t("language", lang)}
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -57,8 +57,8 @@ export function SettingsPanel({
               onClick={() => onSettingsChange({ ...settings, language: l.code as Language })}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 settings.language === l.code
-                  ? "bg-elevated text-cream border-warm-dim/40"
-                  : "bg-surface text-fog border-raised hover:bg-elevated hover:text-cream"
+                  ? "bg-accent text-foreground border-primary/40"
+                  : "bg-card text-muted-foreground border-border hover:bg-accent hover:text-foreground"
               }`}
             >
               <span>{l.flag}</span>
@@ -70,27 +70,27 @@ export function SettingsPanel({
 
       {!apiKeyConfigured && (
         <>
-          <hr className="border-elevated" />
-          <div className="rounded-md px-3 py-2 text-sm bg-elevated text-fog border border-raised">
+          <hr className="border-border" />
+          <div className="rounded-md px-3 py-2 text-sm bg-accent text-muted-foreground border border-border">
             {t("apiError", lang)}
           </div>
         </>
       )}
 
-      <hr className="border-elevated" />
+      <hr className="border-border" />
 
       {/* Naming section — open by default */}
       <details open className="group">
-        <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-dim tracking-[0.15em] uppercase select-none">
+        <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-muted-foreground tracking-[0.15em] uppercase select-none">
           {t("prefix", lang)} / {t("suffix", lang)}
-          <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+          <svg className="w-3.5 h-3.5 text-muted-foreground transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
           </svg>
         </summary>
         <div className="mt-3 flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-dim mb-1">
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
                 {t("prefix", lang)}
               </label>
               <input
@@ -102,7 +102,7 @@ export function SettingsPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-dim mb-1">
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
                 {t("suffix", lang)}
               </label>
               <input
@@ -115,7 +115,7 @@ export function SettingsPanel({
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-dim mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               {t("separator", lang)}
             </label>
             <input
@@ -129,28 +129,28 @@ export function SettingsPanel({
         </div>
       </details>
 
-      <hr className="border-elevated" />
+      <hr className="border-border" />
 
       {/* Metadata defaults section — collapsed if already filled */}
       <details open={!settings.copyright && !settings.creator && !settings.rightsUrl} className="group">
-        <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-dim tracking-[0.15em] uppercase select-none">
+        <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-muted-foreground tracking-[0.15em] uppercase select-none">
           {t("copyright", lang)} / {t("creator", lang)}
           {settings.copyright || settings.creator || settings.rightsUrl ? (
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-warm-dim" />
-              <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              <svg className="w-3.5 h-3.5 text-muted-foreground transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </span>
           ) : (
-            <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="w-3.5 h-3.5 text-muted-foreground transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
             </svg>
           )}
         </summary>
         <div className="mt-3 flex flex-col gap-3">
           <div>
-            <label className="block text-xs font-medium text-dim mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               {t("copyright", lang)}
             </label>
             <input
@@ -162,7 +162,7 @@ export function SettingsPanel({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-dim mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               {t("creator", lang)}
             </label>
             <input
@@ -174,7 +174,7 @@ export function SettingsPanel({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-dim mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               {t("webRights", lang)}
             </label>
             <input
@@ -188,20 +188,20 @@ export function SettingsPanel({
         </div>
       </details>
 
-      <hr className="border-elevated" />
+      <hr className="border-border" />
 
       {/* Action steps */}
-      <div className="rounded-lg border border-raised overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         {/* Step 1: Process */}
         <button
           onClick={onProcessAll}
           disabled={isProcessing || !apiKeyConfigured || imageCount === 0}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-accent text-left hover:bg-muted transition-all disabled:opacity-30 disabled:hover:bg-accent disabled:cursor-not-allowed"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-warm-dim text-deep text-xs font-semibold flex items-center justify-center">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center">
             1
           </span>
-          <span className="text-sm font-medium text-cream">
+          <span className="text-sm font-medium text-foreground">
             {isProcessing
               ? `${t("processing", lang)} ${processProgress.current}/${processProgress.total}`
               : imageCount > 0
@@ -212,42 +212,42 @@ export function SettingsPanel({
 
         {/* Progress bar */}
         {isProcessing && processProgress.total > 0 && (
-          <div className="h-1 bg-deep">
+          <div className="h-1 bg-background">
             <div
-              className="h-full bg-warm-dim transition-all duration-500 ease-out"
+              className="h-full bg-primary transition-all duration-500 ease-out"
               style={{ width: `${(processProgress.current / processProgress.total) * 100}%` }}
             />
           </div>
         )}
 
-        <div className="border-t border-raised" />
+        <div className="border-t border-border" />
 
         {/* Step 2: Export */}
         <button
           onClick={onExportAll}
           disabled={isProcessing || processedCount === 0}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-accent text-left hover:bg-muted transition-all disabled:opacity-30 disabled:hover:bg-accent disabled:cursor-not-allowed"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-warm-dim text-deep text-xs font-semibold flex items-center justify-center">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center">
             2
           </span>
-          <span className="text-sm font-medium text-cream">
+          <span className="text-sm font-medium text-foreground">
             {processedCount > 0 ? `${t("exportAllProcessed", lang)} (${processedCount})` : t("exportAllProcessed", lang)}
           </span>
         </button>
 
-        <div className="border-t border-raised" />
+        <div className="border-t border-border" />
 
         {/* Step 3: Export CSV */}
         <button
           onClick={onExportCsv}
           disabled={isProcessing || processedCount === 0}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-accent text-left hover:bg-muted transition-all disabled:opacity-30 disabled:hover:bg-accent disabled:cursor-not-allowed"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full border border-warm-dim/40 text-warm-dim text-xs font-semibold flex items-center justify-center">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full border border-primary/40 text-primary text-xs font-semibold flex items-center justify-center">
             CSV
           </span>
-          <span className="text-sm font-medium text-cream">
+          <span className="text-sm font-medium text-foreground">
             {processedCount > 0 ? `Export Metadata CSV (${processedCount})` : "Export Metadata CSV"}
           </span>
         </button>
@@ -257,7 +257,7 @@ export function SettingsPanel({
         <button
           onClick={onReset}
           disabled={isProcessing}
-          className="w-full rounded-md px-4 py-2 text-sm font-medium text-fog bg-elevated border border-raised hover:bg-raised hover:text-cream disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-full rounded-md px-4 py-2 text-sm font-medium text-muted-foreground bg-accent border border-border hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           {t("reset", lang)}
         </button>

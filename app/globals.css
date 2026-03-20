@@ -270,3 +270,26 @@ body {
     @apply font-sans;
   }
 }
+
+/* ── Theme toggle circular reveal (View Transition API) ── */
+
+::view-transition-group(root) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-new(root) {
+  animation-name: reveal-in;
+  clip-path: circle(0px at var(--reveal-x, 50%) var(--reveal-y, 50%));
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+}
+
+@keyframes reveal-in {
+  to {
+    clip-path: circle(var(--reveal-r, 100vmax) at var(--reveal-x, 50%) var(--reveal-y, 50%));
+  }
+}

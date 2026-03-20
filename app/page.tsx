@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { UserButton } from "@clerk/nextjs";
 import { HeroSection } from "@/components/hero-section";
 import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
-import { processImage, checkApiKey } from "./actions";
+import { processImage, checkApiKey, getCredits } from "./actions";
 import { exportAsZip, exportAsCsv } from "@/lib/export";
 import type { ImageItem, AppSettings } from "@/lib/types";
 
@@ -102,6 +103,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processProgress, setProcessProgress] = useState({ current: 0, total: 0 });
+  const [credits, setCredits] = useState<number | null>(null);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [toolOpen, setToolOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"grid" | "settings" | "details">("grid");
@@ -116,6 +118,7 @@ export default function Home() {
     const loaded = loadSettings();
     setSettings(loaded);
     checkApiKey().then((result) => setApiKeyConfigured(result.configured));
+    getCredits().then((c) => setCredits(c));
 
     // Returning users skip the hero — open tool directly
     const isReturningUser = localStorage.getItem(SETTINGS_KEY) !== null;
@@ -187,6 +190,11 @@ export default function Home() {
           image.mediaType,
           s.language
         );
+
+        if (result.success) {
+          // Refresh credits after successful processing
+          getCredits().then((c) => setCredits(c));
+        }
 
         setImages((prev) =>
           prev.map((img) =>
@@ -364,7 +372,21 @@ export default function Home() {
                   AI Vision
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 md:gap-3">
+                {/* Credits display */}
+                {credits !== null && (
+                  <a
+                    href="/credits"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-raised bg-elevated text-xs text-cream hover:border-warm-dim/40 transition-all"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 6v12M6 12h12" />
+                    </svg>
+                    <span className="font-medium">{credits}</span>
+                    <span className="hidden sm:inline text-dim">credits</span>
+                  </a>
+                )}
                 <button
                   onClick={() => setToolOpen(false)}
                   className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
@@ -384,6 +406,14 @@ export default function Home() {
                     <path d="M1 1l12 12M13 1L1 13" />
                   </svg>
                 </button>
+                {/* User menu */}
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-7 h-7",
+                    },
+                  }}
+                />
               </div>
             </div>
 
@@ -403,6 +433,7 @@ export default function Home() {
                   imageCount={images.length}
                   processedCount={processedCount}
                   apiKeyConfigured={apiKeyConfigured}
+                  credits={credits}
                 />
               </div>
 

@@ -15,6 +15,7 @@ interface SettingsPanelProps {
   imageCount: number;
   processedCount: number;
   apiKeyConfigured: boolean;
+  credits: number | null;
 }
 
 export function SettingsPanel({
@@ -29,6 +30,7 @@ export function SettingsPanel({
   imageCount,
   processedCount,
   apiKeyConfigured,
+  credits,
 }: SettingsPanelProps) {
   const lang = settings.language;
 
@@ -190,12 +192,38 @@ export function SettingsPanel({
 
       <hr className="border-elevated" />
 
+      {/* Credits display */}
+      {credits !== null && (
+        <div className="rounded-md px-3 py-2.5 bg-elevated border border-raised flex items-center justify-between">
+          <div>
+            <span className="text-xs text-dim uppercase tracking-wider">Credits</span>
+            <div className="text-lg font-semibold text-cream">{credits}</div>
+          </div>
+          <a
+            href="/credits"
+            className="px-3 py-1.5 rounded-md text-xs font-medium bg-warm-dim text-deep hover:bg-warm-dim/90 transition-all"
+          >
+            Buy More
+          </a>
+        </div>
+      )}
+
+      {credits !== null && credits === 0 && imageCount > 0 && (
+        <div className="rounded-md px-3 py-2 text-sm bg-elevated text-fog border border-raised">
+          You need credits to process images.{" "}
+          <a href="/credits" className="text-warm-dim underline underline-offset-2">
+            Purchase credits
+          </a>{" "}
+          to get started.
+        </div>
+      )}
+
       {/* Action steps */}
       <div className="rounded-lg border border-raised overflow-hidden">
         {/* Step 1: Process */}
         <button
           onClick={onProcessAll}
-          disabled={isProcessing || !apiKeyConfigured || imageCount === 0}
+          disabled={isProcessing || !apiKeyConfigured || imageCount === 0 || (credits !== null && credits <= 0)}
           className="w-full flex items-center gap-3 px-3 py-2.5 bg-elevated text-left hover:bg-raised transition-all disabled:opacity-30 disabled:hover:bg-elevated disabled:cursor-not-allowed"
         >
           <span className="flex-shrink-0 w-6 h-6 rounded-full bg-warm-dim text-deep text-xs font-semibold flex items-center justify-center">

@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String     @id @default(cuid())
+  clerkUserId String     @unique
+  credits     Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  usageLogs   UsageLog[]
+  payments    Payment[]
+}
+
+model UsageLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  creditsUsed Int
+  imageCount  Int
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Payment {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+  stripeSessionId     String   @unique
+  stripePaymentIntent String?
+  amount              Int
+  credits             Int
+  status              String
+  createdAt           DateTime @default(now())
+
+  @@index([userId])
+}

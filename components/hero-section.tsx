@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { LANGUAGES, type Language } from "@/lib/i18n";
+import { ComparisonGallery } from "./comparison-gallery";
 
 interface Particle {
   x: number;
@@ -266,6 +267,14 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Comparison gallery */}
+        <div
+          className="animate-fade-up w-screen relative left-1/2 -translate-x-1/2 mt-8"
+          style={{ animationDelay: "0.75s" }}
+        >
+          <ComparisonGallery language={language} />
         </div>
 
         {/* Language selector */}

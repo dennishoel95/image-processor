@@ -15,6 +15,7 @@ interface SettingsPanelProps {
   imageCount: number;
   processedCount: number;
   apiKeyConfigured: boolean;
+  isPremiumUser: boolean;
 }
 
 export function SettingsPanel({
@@ -29,6 +30,7 @@ export function SettingsPanel({
   imageCount,
   processedCount,
   apiKeyConfigured,
+  isPremiumUser,
 }: SettingsPanelProps) {
   const lang = settings.language;
 
@@ -111,7 +113,7 @@ export function SettingsPanel({
           </svg>
         </summary>
         <div className="mt-3 flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className={`grid ${isPremiumUser ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
             <div>
               <label className="block text-xs font-medium text-dim mb-1">
                 {t("prefix", lang)}
@@ -124,18 +126,20 @@ export function SettingsPanel({
                 className={inputClass}
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-dim mb-1">
-                {t("suffix", lang)}
-              </label>
-              <input
-                type="text"
-                value={settings.suffix}
-                onChange={(e) => update("suffix", e.target.value)}
-                placeholder="e.g. hero"
-                className={inputClass}
-              />
-            </div>
+            {isPremiumUser && (
+              <div>
+                <label className="block text-xs font-medium text-dim mb-1">
+                  {t("suffix", lang)}
+                </label>
+                <input
+                  type="text"
+                  value={settings.suffix}
+                  onChange={(e) => update("suffix", e.target.value)}
+                  placeholder="e.g. hero"
+                  className={inputClass}
+                />
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-xs font-medium text-dim mb-1">
@@ -152,64 +156,68 @@ export function SettingsPanel({
         </div>
       </details>
 
-      <hr className="border-elevated" />
+      {isPremiumUser && (
+        <>
+          <hr className="border-elevated" />
 
-      {/* Metadata defaults section — collapsed if already filled */}
-      <details open={!settings.copyright && !settings.creator && !settings.rightsUrl} className="group">
-        <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-dim tracking-[0.15em] uppercase select-none">
-          {t("copyright", lang)} / {t("creator", lang)}
-          {settings.copyright || settings.creator || settings.rightsUrl ? (
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-warm-dim" />
-              <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-              </svg>
-            </span>
-          ) : (
-            <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-            </svg>
-          )}
-        </summary>
-        <div className="mt-3 flex flex-col gap-3">
-          <div>
-            <label className="block text-xs font-medium text-dim mb-1">
-              {t("copyright", lang)}
-            </label>
-            <input
-              type="text"
-              value={settings.copyright}
-              onChange={(e) => update("copyright", e.target.value)}
-              placeholder="© 2026 Company. All rights reserved."
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-dim mb-1">
-              {t("creator", lang)}
-            </label>
-            <input
-              type="text"
-              value={settings.creator}
-              onChange={(e) => update("creator", e.target.value)}
-              placeholder="Photography: Name | Edit: Team"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-dim mb-1">
-              {t("webRights", lang)}
-            </label>
-            <input
-              type="text"
-              value={settings.rightsUrl}
-              onChange={(e) => update("rightsUrl", e.target.value)}
-              placeholder="https://example.com/image-licensing"
-              className={inputClass}
-            />
-          </div>
-        </div>
-      </details>
+          {/* Metadata defaults section — collapsed if already filled */}
+          <details open={!settings.copyright && !settings.creator && !settings.rightsUrl} className="group">
+            <summary className="flex items-center justify-between cursor-pointer text-xs font-medium text-dim tracking-[0.15em] uppercase select-none">
+              {t("copyright", lang)} / {t("creator", lang)}
+              {settings.copyright || settings.creator || settings.rightsUrl ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-warm-dim" />
+                  <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                  </svg>
+                </span>
+              ) : (
+                <svg className="w-3.5 h-3.5 text-dim transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                </svg>
+              )}
+            </summary>
+            <div className="mt-3 flex flex-col gap-3">
+              <div>
+                <label className="block text-xs font-medium text-dim mb-1">
+                  {t("copyright", lang)}
+                </label>
+                <input
+                  type="text"
+                  value={settings.copyright}
+                  onChange={(e) => update("copyright", e.target.value)}
+                  placeholder="© 2026 Company. All rights reserved."
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-dim mb-1">
+                  {t("creator", lang)}
+                </label>
+                <input
+                  type="text"
+                  value={settings.creator}
+                  onChange={(e) => update("creator", e.target.value)}
+                  placeholder="Photography: Name | Edit: Team"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-dim mb-1">
+                  {t("webRights", lang)}
+                </label>
+                <input
+                  type="text"
+                  value={settings.rightsUrl}
+                  onChange={(e) => update("rightsUrl", e.target.value)}
+                  placeholder="https://example.com/image-licensing"
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          </details>
+        </>
+      )}
 
       <hr className="border-elevated" />
 

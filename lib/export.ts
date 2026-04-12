@@ -5,17 +5,22 @@ import { buildFileName } from "./naming";
 function generateMetadataMarkdown(
   fileName: string,
   analysis: NonNullable<ImageItem["analysis"]>,
-  meta: { copyright: string; creator: string; rightsUrl: string }
+  meta: { copyright: string; creator: string; rightsUrl: string; isPremiumUser: boolean }
 ): string {
   const location = [analysis.locationName, analysis.city, analysis.stateProvince, analysis.country]
     .filter(Boolean)
     .join(", ");
 
+  const titleSection = meta.isPremiumUser
+    ? `\n## Title\n${analysis.title || "—"}\n`
+    : "";
+
+  const premiumSections = meta.isPremiumUser
+    ? `\n## Copyright\n${meta.copyright || "—"}\n\n## Creator\n${meta.creator || "—"}\n\n## Date Created\n${new Date().toISOString().split("T")[0]}\n\n## Web Statement of Rights\n${meta.rightsUrl || "—"}\n\n## Location\n${location || "—"}\n${analysis.locationName || analysis.city || analysis.stateProvince || analysis.country ? `\n### Location Details\n${analysis.locationName ? `- **Location Name:** ${analysis.locationName}` : ""}\n${analysis.city ? `- **City:** ${analysis.city}` : ""}\n${analysis.stateProvince ? `- **State/Province:** ${analysis.stateProvince}` : ""}\n${analysis.country ? `- **Country:** ${analysis.country}` : ""}`.trim() : ""}\n`
+    : "";
+
   return `# ${fileName}
-
-## Title
-${analysis.title || "—"}
-
+${titleSection}
 ## Alt Text
 ${analysis.altText || "—"}
 
@@ -24,29 +29,7 @@ ${analysis.metaDescription || "—"}
 
 ## Keywords
 ${analysis.keywords.length > 0 ? analysis.keywords.join(", ") : "—"}
-
-## Copyright
-${meta.copyright || "—"}
-
-## Creator
-${meta.creator || "—"}
-
-## Date Created
-${new Date().toISOString().split("T")[0]}
-
-## Web Statement of Rights
-${meta.rightsUrl || "—"}
-
-## Location
-${location || "—"}
-${analysis.locationName || analysis.city || analysis.stateProvince || analysis.country ? `
-### Location Details
-${analysis.locationName ? `- **Location Name:** ${analysis.locationName}` : ""}
-${analysis.city ? `- **City:** ${analysis.city}` : ""}
-${analysis.stateProvince ? `- **State/Province:** ${analysis.stateProvince}` : ""}
-${analysis.country ? `- **Country:** ${analysis.country}` : ""}
-`.trim() : ""}
-`;
+${premiumSections}`;
 }
 
 function base64DataUrlToBytes(dataUrl: string): Uint8Array {
@@ -62,7 +45,7 @@ function base64DataUrlToBytes(dataUrl: string): Uint8Array {
 
 export async function exportAsZip(
   images: ImageItem[],
-  settings: { prefix: string; suffix: string; separator: string; copyright: string; creator: string; rightsUrl: string }
+  settings: { prefix: string; suffix: string; separator: string; copyright: string; creator: string; rightsUrl: string; isPremiumUser: boolean }
 ): Promise<void> {
   const zip = new JSZip();
 
@@ -101,6 +84,7 @@ export async function exportAsZip(
       copyright: settings.copyright,
       creator: settings.creator,
       rightsUrl: settings.rightsUrl,
+      isPremiumUser: settings.isPremiumUser,
     });
     zip.file(`${mdBaseName}.md`, mdContent);
   }
@@ -125,13 +109,15 @@ function csvEscape(value: string): string {
 
 export function exportAsCsv(
   images: ImageItem[],
-  settings: { prefix: string; suffix: string; separator: string; copyright: string; creator: string; rightsUrl: string }
+  settings: { prefix: string; suffix: string; separator: string; copyright: string; creator: string; rightsUrl: string; isPremiumUser: boolean }
 ): void {
-  const headers = [
-    "filename", "title", "alt_text", "description", "keywords",
-    "copyright", "creator", "rights_url", "date_created",
-    "location_name", "city", "state_province", "country",
-  ];
+  const headers = settings.isPremiumUser
+    ? [
+        "filename", "title", "alt_text", "description", "keywords",
+        "copyright", "creator", "rights_url", "date_created",
+        "location_name", "city", "state_province", "country",
+      ]
+    : ["filename", "alt_text", "description", "keywords"];
 
   const usedNames = new Set<string>();
   const rows: string[][] = [];
@@ -159,21 +145,30 @@ export function exportAsCsv(
     usedNames.add(uniqueName);
 
     const a = image.analysis;
-    rows.push([
-      uniqueName,
-      a.title,
-      a.altText,
-      a.metaDescription,
-      a.keywords.join(", "),
-      settings.copyright,
-      settings.creator,
-      settings.rightsUrl,
-      new Date().toISOString().split("T")[0],
-      a.locationName,
-      a.city,
-      a.stateProvince,
-      a.country,
-    ]);
+    if (settings.isPremiumUser) {
+      rows.push([
+        uniqueName,
+        a.title,
+        a.altText,
+        a.metaDescription,
+        a.keywords.join(", "),
+        settings.copyright,
+        settings.creator,
+        settings.rightsUrl,
+        new Date().toISOString().split("T")[0],
+        a.locationName,
+        a.city,
+        a.stateProvince,
+        a.country,
+      ]);
+    } else {
+      rows.push([
+        uniqueName,
+        a.altText,
+        a.metaDescription,
+        a.keywords.join(", "),
+      ]);
+    }
   }
 
   const csv = [headers.join(","), ...rows.map((r) => r.map(csvEscape).join(","))].join("\n");

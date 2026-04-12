@@ -106,6 +106,8 @@ export default function Home() {
   const [toolOpen, setToolOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<"grid" | "settings" | "details">("grid");
 
+  const isPremiumUser = false;
+
   const imagesRef = useRef(images);
   imagesRef.current = images;
 
@@ -253,6 +255,7 @@ export default function Home() {
       copyright: s.copyright,
       creator: s.creator,
       rightsUrl: s.rightsUrl,
+      isPremiumUser,
     });
 
     setImages((prev) =>
@@ -278,8 +281,9 @@ export default function Home() {
       copyright: s.copyright,
       creator: s.creator,
       rightsUrl: s.rightsUrl,
+      isPremiumUser,
     });
-  }, []);
+  }, [isPremiumUser]);
 
   const handleUpdateAnalysis = useCallback(
     (
@@ -403,6 +407,7 @@ export default function Home() {
                   imageCount={images.length}
                   processedCount={processedCount}
                   apiKeyConfigured={apiKeyConfigured}
+                  isPremiumUser={isPremiumUser}
                 />
               </div>
 
@@ -438,6 +443,7 @@ export default function Home() {
                     onClose={() => { setSelectedId(null); setMobileTab("grid"); }}
                     isProcessing={isProcessing}
                     language={settings.language}
+                    isPremiumUser={isPremiumUser}
                   />
                 </div>
               )}

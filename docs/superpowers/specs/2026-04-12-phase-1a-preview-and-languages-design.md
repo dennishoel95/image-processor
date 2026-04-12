@@ -123,22 +123,29 @@ Images are downloaded at Medium resolution (~1920px), compressed to ~300-500 KB 
 
 ## 6. Sample Generation Workflow
 
-### Script: `scripts/generate-samples.ts`
+### Manual generation via the existing tool (no script)
 
-Run manually via `npm run generate-samples`. One-time execution, not part of the build pipeline.
+Both Mistral (free) and Claude (premium) outputs are generated manually by the
+developer using the image-processor tool itself, then committed as static data.
+No automated script. No Claude API calls in any pipeline.
 
-**What it does:**
-1. Reads each image from `public/samples/`
-2. Compresses to base64
-3. Calls `mistralProvider.analyzeImage(base64, mediaType, "no")` (free output)
-4. Waits ~3 seconds (respects Mistral's 0.42 RPS free-tier limit)
-5. Calls `claudeProvider.analyzeImage(base64, mediaType, "no")` (premium output)
-6. Writes all results to `lib/samples/comparison-data.ts` as a typed constant
+**Process:**
+1. Upload all 6 sample images into the running tool
+2. Analyze with the default provider (Mistral) — export as ZIP
+3. Switch `VISION_PROVIDER=claude` in `.env.local`, restart dev server
+4. Analyze the same 6 images again — export as ZIP
+5. Switch `VISION_PROVIDER` back to `mistral` immediately
+6. Developer (or Claude Code) formats both ZIP outputs into `lib/samples/comparison-data.ts`
 
-**What it does NOT do:**
-- Download images from Unsplash (manual step, done once)
-- Run during `next build` or `next dev`
-- Auto-format or "fix" model output (authentic differences are the point)
+**Key principle: Claude never runs unless someone pays.** The one-time manual
+generation (~$0.03-0.06 for 6 images) is a business expense absorbed during
+setup. After that, Claude is only called when a paying user triggers it via
+the tier-gated provider factory in Phase 1B.
+
+**What this approach does NOT do:**
+- Call any API at build time
+- Require a `scripts/` directory or npm script
+- Auto-regenerate when models update (re-run the manual process if needed)
 
 ### Data shape
 
@@ -169,20 +176,17 @@ export const COMPARISON_SAMPLES: ComparisonSample[] = [
 ];
 ```
 
-### Cost per generation run
+### Cost
 
 - 6 Mistral calls: free (Experiment tier)
-- 6 Claude calls: ~$0.03-0.06 total
-- Total: effectively free
+- 6 Claude calls: ~$0.03-0.06 total, one-time business expense
+- Ongoing cost: zero
 
-### Regeneration policy
+### Regeneration
 
-Re-run only when:
-- Sample images change
-- Provider models are updated and you want fresher output
-- Prompt changes meaningfully
-
-The generated file is committed to git. Deterministic. No API dependency at build time.
+Re-run the manual process only when sample images change or you want
+fresher output from updated models. The generated file is committed to
+git. Deterministic. No API dependency at build time.
 
 ---
 
@@ -196,8 +200,7 @@ The generated file is committed to git. Deterministic. No API dependency at buil
 | `components/comparison-sample.tsx` | One sample card: image + photographer credit + field rows |
 | `components/field-row.tsx` | Single field row with free cell + premium cell; supports locked variant |
 | `lib/samples/comparison-data.ts` | Static generated data (output of generate-samples script) |
-| `lib/samples/README.md` | Instructions for regenerating samples |
-| `scripts/generate-samples.ts` | One-time sample generator script |
+| `lib/samples/README.md` | Instructions for regenerating samples manually |
 
 ### Modified files
 

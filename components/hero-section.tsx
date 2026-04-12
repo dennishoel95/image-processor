@@ -37,12 +37,11 @@ function generateParticles(count: number): Particle[] {
 }
 
 interface HeroProps {
-  onScrollToTool: () => void;
   language: Language;
   onLanguageChange: (lang: Language) => void;
 }
 
-export function HeroSection({ onScrollToTool, language, onLanguageChange }: HeroProps) {
+export function HeroSection({ language, onLanguageChange }: HeroProps) {
   const particlesRef = useRef<Particle[]>(generateParticles(24));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const motesRef = useRef<CursorMote[]>([]);
@@ -162,7 +161,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-deep"
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-deep py-20 md:py-32"
     >
       {/* Gradient overlay */}
       <div
@@ -270,7 +269,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
 
         {/* Language selector */}
         <div
-          className="animate-fade-up flex flex-wrap items-center justify-center gap-2 mb-8"
+          className="animate-fade-up flex flex-wrap items-center justify-center gap-2"
           style={{ animationDelay: "0.8s" }}
         >
           {LANGUAGES.map((l) => {
@@ -311,29 +310,7 @@ export function HeroSection({ onScrollToTool, language, onLanguageChange }: Hero
             );
           })}
         </div>
-
-        {/* CTA */}
-        <div className="animate-fade-up" style={{ animationDelay: "0.9s" }}>
-          <button
-            onClick={onScrollToTool}
-            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-warm/40 text-cream font-body font-medium text-sm tracking-wide transition-all duration-300 hover:bg-warm/10 hover:border-warm/70 hover:shadow-[0_0_30px_rgba(197,163,100,0.12)]"
-          >
-            Start Processing
-            <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
-        </div>
       </div>
-
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-deep to-transparent pointer-events-none" />
     </section>
   );
 }

@@ -3,9 +3,6 @@ import type { Language } from "@/lib/i18n";
 const LANGUAGE_NAMES: Record<Language, string> = {
   en: "English",
   no: "Norwegian (Bokmål)",
-  de: "German",
-  es: "Spanish",
-  ko: "Korean",
 };
 
 /**

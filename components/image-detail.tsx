@@ -21,6 +21,7 @@ interface ImageDetailProps {
   onClose: () => void;
   isProcessing: boolean;
   language: Language;
+  isPremiumUser: boolean;
 }
 
 function buildPreviewName(
@@ -63,6 +64,7 @@ export function ImageDetail({
   onClose,
   isProcessing,
   language,
+  isPremiumUser,
 }: ImageDetailProps) {
   const analysis = image.analysis;
   const ext = image.originalFileName.split(".").pop() || "jpg";
@@ -76,7 +78,7 @@ export function ImageDetail({
   const labelClass = "block text-xs font-medium text-dim mb-1";
 
   return (
-    <div className="w-full md:w-96 border-t md:border-t-0 md:border-l border-elevated bg-surface p-4 overflow-y-auto flex flex-col gap-4 dark-scroll">
+    <div className="rounded-xl border border-elevated bg-surface p-4 md:p-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-fog tracking-[0.15em] uppercase">
           {t("imageDetails", language)}
@@ -146,19 +148,21 @@ export function ImageDetail({
             />
           </div>
 
-          {/* Title */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-dim">{t("title", language)}</label>
-              <CharCount value={analysis.title} max={100} warn={90} />
+          {/* Title — premium only */}
+          {isPremiumUser && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-medium text-dim">{t("title", language)}</label>
+                <CharCount value={analysis.title} max={100} warn={90} />
+              </div>
+              <input
+                type="text"
+                value={analysis.title}
+                onChange={(e) => onUpdateAnalysis(image.id, "title", e.target.value)}
+                className={inputClass}
+              />
             </div>
-            <input
-              type="text"
-              value={analysis.title}
-              onChange={(e) => onUpdateAnalysis(image.id, "title", e.target.value)}
-              className={inputClass}
-            />
-          </div>
+          )}
 
           {/* Alt Text */}
           <div>
@@ -205,58 +209,60 @@ export function ImageDetail({
             />
           </div>
 
-          {/* Location */}
-          <div className="rounded-md border border-raised p-3 space-y-3">
-            <p className="text-xs font-medium text-dim uppercase tracking-wider">{t("location", language)}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs text-dim mb-0.5">{t("locationName", language)}</label>
-                <input
-                  type="text"
-                  value={analysis.locationName}
-                  onChange={(e) => onUpdateAnalysis(image.id, "locationName", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-dim mb-0.5">{t("city", language)}</label>
-                <input
-                  type="text"
-                  value={analysis.city}
-                  onChange={(e) => onUpdateAnalysis(image.id, "city", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-dim mb-0.5">{t("stateProvince", language)}</label>
-                <input
-                  type="text"
-                  value={analysis.stateProvince}
-                  onChange={(e) => onUpdateAnalysis(image.id, "stateProvince", e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-dim mb-0.5">{t("country", language)}</label>
-                <input
-                  type="text"
-                  value={analysis.country}
-                  onChange={(e) => onUpdateAnalysis(image.id, "country", e.target.value)}
-                  className={inputClass}
-                />
+          {/* Location — premium only */}
+          {isPremiumUser && (
+            <div className="rounded-md border border-raised p-3 space-y-3">
+              <p className="text-xs font-medium text-dim uppercase tracking-wider">{t("location", language)}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-dim mb-0.5">{t("locationName", language)}</label>
+                  <input
+                    type="text"
+                    value={analysis.locationName}
+                    onChange={(e) => onUpdateAnalysis(image.id, "locationName", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-dim mb-0.5">{t("city", language)}</label>
+                  <input
+                    type="text"
+                    value={analysis.city}
+                    onChange={(e) => onUpdateAnalysis(image.id, "city", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-dim mb-0.5">{t("stateProvince", language)}</label>
+                  <input
+                    type="text"
+                    value={analysis.stateProvince}
+                    onChange={(e) => onUpdateAnalysis(image.id, "stateProvince", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-dim mb-0.5">{t("country", language)}</label>
+                  <input
+                    type="text"
+                    value={analysis.country}
+                    onChange={(e) => onUpdateAnalysis(image.id, "country", e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Metadata preview */}
           <div>
             <label className={labelClass}>{t("mdPreview", language)}</label>
             <pre className="rounded-md bg-deep p-3 text-xs text-fog whitespace-pre-wrap overflow-x-auto border border-elevated">
 {`# ${previewName}
-
+${isPremiumUser ? `
 ## ${t("title", language)}
 ${analysis.title}
-
+` : ""}
 ## ${t("altText", language)}
 ${analysis.altText}
 
@@ -265,7 +271,7 @@ ${analysis.metaDescription}
 
 ## ${t("keywords", language)}
 ${analysis.keywords.join(", ")}
-
+${isPremiumUser ? `
 ## ${t("copyright", language)}
 ${copyright || "—"}
 
@@ -276,7 +282,7 @@ ${creator || "—"}
 ${rightsUrl || "—"}
 
 ## ${t("location", language)}
-${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.country].filter(Boolean).join(", ") || "—"}`}
+${[analysis.locationName, analysis.city, analysis.stateProvince, analysis.country].filter(Boolean).join(", ") || "—"}` : ""}`}
             </pre>
           </div>
 

@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/hero-section";
 import { SettingsPanel } from "@/components/settings-panel";
 import { ImageGrid } from "@/components/image-grid";
 import { ImageDetail } from "@/components/image-detail";
+import { ComparisonGallery } from "@/components/comparison-gallery";
 import { processImage, checkApiKey } from "./actions";
 import { exportAsZip, exportAsCsv } from "@/lib/export";
 import type { ImageItem, AppSettings } from "@/lib/types";
@@ -103,8 +104,8 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processProgress, setProcessProgress] = useState({ current: 0, total: 0 });
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
-  const [toolOpen, setToolOpen] = useState(false);
-  const [mobileTab, setMobileTab] = useState<"grid" | "settings" | "details">("grid");
+
+  const isPremiumUser = false;
 
   const imagesRef = useRef(images);
   imagesRef.current = images;
@@ -116,12 +117,6 @@ export default function Home() {
     const loaded = loadSettings();
     setSettings(loaded);
     checkApiKey().then((result) => setApiKeyConfigured(result.configured));
-
-    // Returning users skip the hero — open tool directly
-    const isReturningUser = localStorage.getItem(SETTINGS_KEY) !== null;
-    if (isReturningUser) {
-      setToolOpen(true);
-    }
   }, []);
 
   useEffect(() => {
@@ -135,18 +130,6 @@ export default function Home() {
       });
     };
   }, []);
-
-  // Lock body scroll when overlay is open
-  useEffect(() => {
-    if (toolOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [toolOpen]);
 
   const handleFilesSelected = useCallback((files: File[]) => {
     const promises = files.map(async (file): Promise<ImageItem> => {
@@ -253,6 +236,7 @@ export default function Home() {
       copyright: s.copyright,
       creator: s.creator,
       rightsUrl: s.rightsUrl,
+      isPremiumUser,
     });
 
     setImages((prev) =>
@@ -278,8 +262,9 @@ export default function Home() {
       copyright: s.copyright,
       creator: s.creator,
       rightsUrl: s.rightsUrl,
+      isPremiumUser,
     });
-  }, []);
+  }, [isPremiumUser]);
 
   const handleUpdateAnalysis = useCallback(
     (
@@ -326,7 +311,6 @@ export default function Home() {
 
   const handleSelectImage = useCallback((id: string) => {
     setSelectedId(id);
-    setMobileTab("details");
   }, []);
 
   const selectedImage = images.find((img) => img.id === selectedId) || null;
@@ -335,167 +319,71 @@ export default function Home() {
   ).length;
 
   return (
-    <main className="h-screen overflow-hidden">
-      {/* Hero — always visible behind overlay */}
+    <main className="min-h-screen bg-deep">
+      {/* Hero */}
       <HeroSection
-        onScrollToTool={() => setToolOpen(true)}
         language={settings.language}
         onLanguageChange={(lang) => setSettings((s) => ({ ...s, language: lang }))}
       />
 
-      {/* Tool overlay */}
-      {toolOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col">
-          {/* Backdrop */}
-          <div
-            className="overlay-backdrop absolute inset-0 bg-deep/95 backdrop-blur-sm"
-            onClick={() => setToolOpen(false)}
+      {/* Tool section */}
+      <section className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+        {/* Compact settings bar */}
+        <SettingsPanel
+          settings={settings}
+          onSettingsChange={setSettings}
+          onProcessAll={handleProcessAll}
+          onExportAll={handleExportAll}
+          onExportCsv={handleExportCsv}
+          onReset={handleReset}
+          isProcessing={isProcessing}
+          processProgress={processProgress}
+          imageCount={images.length}
+          processedCount={processedCount}
+          apiKeyConfigured={apiKeyConfigured}
+          isPremiumUser={isPremiumUser}
+        />
+
+        {/* Image grid */}
+        <div className="mt-6">
+          <ImageGrid
+            images={images}
+            selectedId={selectedId}
+            onSelectImage={handleSelectImage}
+            onRemoveImage={handleRemoveImage}
+            onFilesSelected={handleFilesSelected}
+            prefix={settings.prefix}
+            suffix={settings.suffix}
+            separator={settings.separator}
+            language={settings.language}
           />
-
-          {/* Panel */}
-          <div className="overlay-panel relative z-10 flex flex-col m-1 mt-2 mb-0 md:m-4 md:mt-6 md:mb-4 rounded-t-xl md:rounded-xl border border-elevated bg-surface overflow-hidden shadow-2xl shadow-black/40 flex-1">
-            {/* Header bar */}
-            <div className="flex items-center justify-between px-3 py-2 md:px-5 md:py-3 border-b border-elevated bg-surface/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2 md:gap-3">
-                <h2 className="font-display font-light text-cream text-base md:text-lg">
-                  Image Processor
-                </h2>
-                <span className="hidden sm:inline text-[10px] text-dim tracking-wider uppercase font-medium px-2 py-0.5 rounded-full border border-raised">
-                  AI Vision
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setToolOpen(false)}
-                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 16v-4M12 8h.01" />
-                  </svg>
-                  <span>About</span>
-                </button>
-                <button
-                  onClick={() => setToolOpen(false)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-dim hover:text-cream hover:bg-elevated transition-all"
-                >
-                  <span>Close</span>
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M1 1l12 12M13 1L1 13" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Tool body — desktop: side-by-side, mobile: tab-switched */}
-            <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-              {/* Desktop: always show settings panel. Mobile: show only when tab active */}
-              <div className={`${mobileTab === "settings" ? "flex" : "hidden"} md:flex flex-col w-full md:w-auto`}>
-                <SettingsPanel
-                  settings={settings}
-                  onSettingsChange={setSettings}
-                  onProcessAll={handleProcessAll}
-                  onExportAll={handleExportAll}
-                  onExportCsv={handleExportCsv}
-                  onReset={handleReset}
-                  isProcessing={isProcessing}
-                  processProgress={processProgress}
-                  imageCount={images.length}
-                  processedCount={processedCount}
-                  apiKeyConfigured={apiKeyConfigured}
-                />
-              </div>
-
-              {/* Desktop: always show grid. Mobile: show only when tab active */}
-              <div className={`${mobileTab === "grid" ? "flex" : "hidden"} md:flex flex-col flex-1 min-w-0`}>
-                <ImageGrid
-                  images={images}
-                  selectedId={selectedId}
-                  onSelectImage={handleSelectImage}
-                  onRemoveImage={handleRemoveImage}
-                  onFilesSelected={handleFilesSelected}
-                  prefix={settings.prefix}
-                  suffix={settings.suffix}
-                  separator={settings.separator}
-                  language={settings.language}
-                />
-              </div>
-
-              {/* Desktop: show when selected. Mobile: show only when tab active + selected */}
-              {selectedImage && (
-                <div className={`${mobileTab === "details" ? "flex" : "hidden"} md:flex flex-col w-full md:w-auto`}>
-                  <ImageDetail
-                    image={selectedImage}
-                    prefix={settings.prefix}
-                    suffix={settings.suffix}
-                    separator={settings.separator}
-                    copyright={settings.copyright}
-                    creator={settings.creator}
-                    rightsUrl={settings.rightsUrl}
-                    onUpdateAnalysis={handleUpdateAnalysis}
-                    onProcess={handleProcessSingle}
-                    onExport={() => handleExportAll()}
-                    onClose={() => { setSelectedId(null); setMobileTab("grid"); }}
-                    isProcessing={isProcessing}
-                    language={settings.language}
-                  />
-                </div>
-              )}
-
-              {/* Mobile: no image selected on details tab */}
-              {!selectedImage && mobileTab === "details" && (
-                <div className="flex md:hidden flex-1 items-center justify-center text-dim text-sm">
-                  Select an image to view details
-                </div>
-              )}
-            </div>
-
-            {/* Mobile tab bar */}
-            <div className="flex md:hidden border-t border-elevated bg-surface/90 backdrop-blur-sm">
-              <button
-                onClick={() => setMobileTab("settings")}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "settings" ? "text-warm-dim" : "text-dim"
-                }`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                Settings
-              </button>
-              <button
-                onClick={() => setMobileTab("grid")}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "grid" ? "text-warm-dim" : "text-dim"
-                }`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <rect x="14" y="14" width="7" height="7" rx="1" />
-                </svg>
-                Images
-              </button>
-              <button
-                onClick={() => setMobileTab("details")}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium tracking-wider uppercase transition-all ${
-                  mobileTab === "details" ? "text-warm-dim" : "text-dim"
-                } ${selectedImage ? "" : "opacity-40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                </svg>
-                Details
-              </button>
-            </div>
-          </div>
         </div>
-      )}
+
+        {/* Image detail — appears below grid when an image is selected */}
+        {selectedImage && (
+          <div className="mt-6">
+            <ImageDetail
+              image={selectedImage}
+              prefix={settings.prefix}
+              suffix={settings.suffix}
+              separator={settings.separator}
+              copyright={settings.copyright}
+              creator={settings.creator}
+              rightsUrl={settings.rightsUrl}
+              onUpdateAnalysis={handleUpdateAnalysis}
+              onProcess={handleProcessSingle}
+              onExport={() => handleExportAll()}
+              onClose={() => setSelectedId(null)}
+              isProcessing={isProcessing}
+              language={settings.language}
+              isPremiumUser={isPremiumUser}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* Comparison gallery */}
+      <ComparisonGallery language={settings.language} />
     </main>
   );
 }

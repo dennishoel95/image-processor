@@ -1,10 +1,14 @@
 "use server";
 
-import { analyzeImage, type ImageAnalysis } from "@/lib/claude";
+import { getVisionProvider, type ImageAnalysis } from "@/lib/vision";
 import type { Language } from "@/lib/i18n";
 
-export async function checkApiKey(): Promise<{ configured: boolean }> {
-  return { configured: !!process.env.ANTHROPIC_API_KEY };
+export async function checkApiKey(): Promise<{
+  configured: boolean;
+  provider: string;
+}> {
+  const provider = getVisionProvider();
+  return { configured: provider.isConfigured(), provider: provider.name };
 }
 
 export async function processImage(
@@ -18,11 +22,13 @@ export async function processImage(
       ? base64Data.split(",")[1]
       : base64Data;
 
+    const provider = getVisionProvider();
+
     console.log(
-      `[processImage] Processing image (${mediaType}, ${Math.round(rawBase64.length / 1024)}KB base64, lang: ${language})`
+      `[processImage] Processing image via ${provider.name} (${mediaType}, ${Math.round(rawBase64.length / 1024)}KB base64, lang: ${language})`
     );
 
-    const analysis = await analyzeImage(rawBase64, mediaType, language);
+    const analysis = await provider.analyzeImage(rawBase64, mediaType, language);
     console.log(
       `[processImage] Success -> ${analysis.descriptiveName}`
     );
